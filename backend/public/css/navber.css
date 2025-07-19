@@ -1,0 +1,263 @@
+
+        /* Fixed Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background-color: #343a40;
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .brand {
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            border-bottom: 1px solid #495057;
+            text-align: center;
+        }
+
+        .sidebar .nav-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar .nav-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #adb5bd;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .sidebar .nav-menu a:hover {
+            background-color: #495057;
+            color: white;
+            border-left-color: #007bff; 
+        }
+
+        .sidebar .nav-menu a.active {
+            background-color: #007bff;
+            color: white;
+            border-left-color: #0056b3;
+        }
+
+        /* Fixed Top Navigation */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            right: 0;
+            height: 60px;
+            background-color: #fff;
+            border-bottom: 1px solid #dee2e6;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .top-navbar .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .top-navbar .nav-links a {
+            color: #495057;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .top-navbar .nav-links a:hover {
+            background-color: #f8f9fa;
+            color: #007bff;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 250px;
+            margin-top: 60px;
+            padding: 20px;
+            min-height: calc(100vh - 60px);
+            background-color: #f8f9fa;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Button Styles */
+        .btn-create {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-create:hover {
+            background-color: #218838;
+            color: white;
+        }
+
+        /* Table Styles */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .products-table th{
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .products-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .products-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .products-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid;
+            border-radius: 20px;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 5px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-edit:hover {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-delete {
+            color: #dc3545;
+            border-color: #dc3545;
+            background: none;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-view {
+            color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-view:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #adb5bd;
+        }
+        .profile_container{
+            margin-left: 250px;
+            margin-top: 60px;
+            padding: 20px;
+        }
+
+        .bookings_container{
+            margin-left: 150px;
+            margin-top: 60px;
+            padding: 20px;
+        }
+        .dashboard{
+            margin-left: 250px;
+            margin-top: 100px;
+            padding: 20px;
+        }
+        .view_products{
+            margin-left: 250px;
+            margin-top: 100px;
+            padding: 20px;
+        }
+        .products_create{
+            margin-left: 250px;
+            margin-top: 60px;
+            padding: 20px;
+            /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .top-navbar {
+                left: 200px;
+            }
+            
+            .main-content {
+                margin-left: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .top-navbar {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }

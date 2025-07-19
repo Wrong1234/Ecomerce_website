@@ -4,3 +4,22 @@
   margin: 20px auto;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* .products{
+  margin-top: 1700px;
+} */
+
+.product-emoji {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+.product-image {
+  padding: 24px;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
