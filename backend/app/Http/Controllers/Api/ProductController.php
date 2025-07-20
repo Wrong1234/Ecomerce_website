@@ -48,7 +48,7 @@ class ProductController extends Controller
         
         $product ->save();
         
-        return redirect()->route('products.viewAllProducts')->withSuccess('Project created successfully.');
+        return redirect()->route('viewAllProducts')->withSuccess('Project created successfully.');
     }
 
     public function products(){

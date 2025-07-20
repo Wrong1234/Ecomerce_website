@@ -1,7 +1,23 @@
 import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Mail, Phone, MapPin, CreditCard } from 'lucide-react';
 
  const CheckoutForm = () =>{
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const cartData = params.get("cart");
+
+  let cart = [];
+  try {
+    if (cartData) {
+      cart = JSON.parse(decodeURIComponent(cartData));
+    }
+  } catch (err) {
+    console.error("Failed to parse cart data", err);
+  }
+
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -11,7 +27,7 @@ import { ShoppingCart, User, Mail, Phone, MapPin, CreditCard } from 'lucide-reac
     city: '',
     state: '',
     zipCode: '',
-    country: ''
+    postalCode: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -44,7 +60,7 @@ import { ShoppingCart, User, Mail, Phone, MapPin, CreditCard } from 'lucide-reac
     if (!formData.city.trim()) newErrors.city = 'City is required';
     if (!formData.state.trim()) newErrors.state = 'State is required';
     if (!formData.zipCode.trim()) newErrors.zipCode = 'ZIP code is required';
-    if (!formData.country.trim()) newErrors.country = 'Country is required';
+    if (!formData.postalCode.trim()) newErrors.country = 'Postal Code is required';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -62,7 +78,7 @@ const handleSubmit = async (e) => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/booking', {
+      const response = await fetch('http://localhost:8000/api/store', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +93,8 @@ const handleSubmit = async (e) => {
           city: formData.city,
           zipCode: formData.zipCode,
           state: formData.state,
-          country: formData.country
+          postalCode: formData.postalCode,
+          cart_items: cart,
 
         })
       });
@@ -85,8 +102,6 @@ const handleSubmit = async (e) => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Token:', data.token);
-        console.log('User:', data.user);
         
         // Clear form
         setFormData({
@@ -98,10 +113,9 @@ const handleSubmit = async (e) => {
           city: '',
           state: '',
           zipCode: '',
-          country: ''
+          postalCode: ''
         });
-
-        //  navigate('/Auth/login');
+        navigate('/orderconfirmation', { state: data });
       } else {
         if (data.errors) {
           setErrors(data.errors);
@@ -113,7 +127,7 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <div className="container py-5" style={{ background: "linear-gradient(135deg, #e3f0ff 0%, #f3e8ff 100%)", minHeight: "100vh" }}>
+    <div className="container py-5" style={{ background: "linear-gradient(135deg, #e3f0ff 0%, #f3e8ff 100%)",     minHeight: "100vh" }}>
       <div className="row justify-content-center">
         <div className="col-lg-8">
           <div className="card shadow-lg rounded-4 border-0">
@@ -256,29 +270,23 @@ const handleSubmit = async (e) => {
                     />
                     {errors.zipCode && <div className="invalid-feedback">{errors.zipCode}</div>}
                   </div>
+                  <div className="row g-3 mt-3">
                   <div className="col-sm-6">
-                    <label htmlFor="country" className="form-label">Country</label>
-                    <select
-                      id="country"
-                      name="country"
-                      value={formData.country}
+                    <label htmlFor="postalCode" className="form-label">Postal Code</label>
+                    <input
+                      type="text"
+                      id="postalCode"
+                      name="postalCode"
+                      value={formData.postalCode}
                       onChange={handleInputChange}
-                      className={`form-select ${errors.country ? 'is-invalid' : ''}`}
-                    >
-                      <option value="">Select country</option>
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
-                      <option value="UK">United Kingdom</option>
-                      <option value="AU">Australia</option>
-                      <option value="DE">Germany</option>
-                      <option value="FR">France</option>
-                      <option value="BD">Bangladesh</option>
-                      <option value="IN">India</option>
-                    </select>
-                    {errors.country && <div className="invalid-feedback">{errors.country}</div>}
+                      className={`form-control ${errors.zipCode ? 'is-invalid' : ''}`}
+                      placeholder="Enter Postal code"
+                    />
+                    {errors.postalCode && <div className="invalid-feedback">{errors.postalCode}</div>}
                   </div>
-                </div>
               </div>
+              </div>
+            </div>
 
               {/* Submit Button */}
               <div className="mt-5 pt-4 border-top">

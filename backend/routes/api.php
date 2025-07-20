@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 
 
@@ -23,3 +24,7 @@ Route::get('/products', [ProductController::class, 'products']);
 Route::get('/product/{id}', [ProductController::class, 'product']);
 
 Route::get('/dashboard', [ProductController::class, 'dashboard'])->name('dashboard');
+
+//orders route
+Route::post('/store', [OrderController::class, 'store'])->name('store');
+Route::get('/ordersManagement', [OrderController::class, 'getOrders'])->name('ordersManagement');

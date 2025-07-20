@@ -12,12 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('fistName');
-            $table->string('lastName');
-            $table->string('email');
-            $table->string('phone');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->string('total_amount');
+            $table->enum('status',['pending', 'cancelled', 'confirmed', 'draft'])->defult('pending');
         });
     }
 
@@ -27,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn(['firstName', 'lastName', 'email', 'phone', 'user_id', 'product_id']);
+            $table->dropColumn(['total_amount', 'status']);
         });
     }
 };

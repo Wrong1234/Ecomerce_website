@@ -17,7 +17,7 @@ const ProductList = () => {
       }
 
       const result = await response.json();
-      
+      console.log(result);
       // Handle different API response formats
       let productsArray;
       if (Array.isArray(result)) {

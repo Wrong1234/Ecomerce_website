@@ -23,7 +23,7 @@
             <a href="{{route('viewAllProducts')}}">
                 <i class="fas fa-box me-2"></i>Products Management
             </a>
-             <a href="#">
+             <a href="{{route('ordersManagement')}}">
                 <i class="fas fa-box me-2"></i>Order Management
             </a>
         </div>
