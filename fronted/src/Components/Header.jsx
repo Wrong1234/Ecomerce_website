@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from "react-router-dom";
 import { ShoppingCart, X, Plus, Minus, Trash2 } from 'lucide-react';
-// import "../header.css";
+import "../header.css";
 
 const Header = () => {
   const [cart, setCart] = useState([]);
@@ -105,8 +105,8 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-primary text-white py-3 shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between">
+      <header className="bg-dark text-white py-3 shadow-sm">
+        <div className="navber">
           <div className="logo">
             <h1 className="h3 mb-0">🛒 Shopping Store</h1>
           </div>
@@ -117,26 +117,24 @@ const Header = () => {
               <li className="nav-item"><NavLink className="nav-link text-white" to="/contact" activeClassName="active">Contact</NavLink></li>
             </ul>
           </nav>
-          <div>
-            <ul className="nav">
-              <li className="nav-item">
+            <ul className="nav_auth">
+              <li>
                 <button
-                  className="btn btn-light position-relative me-2"
+                  className="btn btn-primary position-relative me-1"
                   onClick={() => {
                     refreshCart();
                     setShowCart(!showCart);
                   }}>
-                  <ShoppingCart size={22} className="me-1" />
+                  <ShoppingCart size={22} className="me-3" />
                   <span className="cart-label">Cart</span>
                   {getTotalItems() > 0 && (
                     <span className="badge bg-danger position-absolute top-0 start-100 translate-middle">{getTotalItems()}</span>
                   )}
                 </button>
               </li>
-              <li className="nav-item"><NavLink className="btn btn-outline-light me-2" to="/auth/login" activeClassName="active">Login</NavLink></li>
-              <li className="nav-item"><NavLink className="btn btn-warning" to="/auth/signup" activeClassName="active">Sign Up</NavLink></li>
+              <li><NavLink  to="/auth/login" className="nav_li">Login</NavLink></li>
+              <li><NavLink  to="/auth/signup" className="nav_li">Sign Up</NavLink></li>
             </ul>
-          </div>
         </div>
       </header>
 

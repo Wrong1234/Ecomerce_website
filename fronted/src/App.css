@@ -23,3 +23,17 @@
   align-items: center;
   justify-content: center;
 }
+
+.card_design{
+  width: 300px;
+  min-height: 300px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.cart_body{
+  background: linear-gradient(135deg, #e41034 0%, #28f000 100%);
+  color: white;
+  padding-top: 20px;
+  padding: 5px;
+}

@@ -30,7 +30,7 @@ return [
     'allowed_methods' => ['*'],
     
     'allowed_origins' => [
-        'http://localhost:5174', // Add your React dev server
+        'http://localhost:5173', // Add your React dev server
         'http://localhost:3000',  // Common React port
     ],
     

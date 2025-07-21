@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
 //Products route
 Route::get('/create', [ProductController::class, 'create'])->name('create');
 Route::get('/viewAllProducts', [ProductController::class, 'view'])->name('viewAllProducts');
-Route::Post('/store', [ProductController::class, 'store'])->name('store');
+Route::post('/store', [ProductController::class, 'store'])->name('store');
 Route::get('/products', [ProductController::class, 'products']);
 Route::get('/product/{id}', [ProductController::class, 'product']);
 
