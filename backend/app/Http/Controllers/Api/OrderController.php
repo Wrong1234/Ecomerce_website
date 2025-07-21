@@ -77,8 +77,8 @@ class OrderController extends Controller
                 'message' => 'Order placed successfully!',
                 'data' => [
                     'order_id' => $order->id,
-                    'customer_firstName' => $order->firstName,
-                    'customer_firstName' => $order->lastName,
+                    'firstName' => $order->firstName,
+                    'lastName' => $order->lastName,
                     'email' => $order->email,
                     'total_amount' => $order->total_amount,
                     'status' => $order->status,

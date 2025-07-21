@@ -1,18 +1,10 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const OrderConfirmation = () => {
-  const { state } = useLocation();
-  const {
-    order_id,
-    firstName,
-    lastName,
-    email,
-    status,
-    total_amount,
-    created_at,
-    cartItem,
-  } = state || {};
+  const location = useLocation();
+  const navigate = useNavigate();
+  const orderData = location.state?.data;
 
   return (
     <div className="container my-5">
@@ -33,33 +25,33 @@ const OrderConfirmation = () => {
           <div className="bg-light rounded-3 p-4 mb-4">
             <div className="row mb-2">
               <div className="col-6 text-secondary">Order ID:</div>
-              <div className="col-6 fw-semibold text-end">{order_id}</div>
+              <div className="col-6 fw-semibold text-end">{orderData?.order_id}</div>
             </div>
             <div className="row mb-2">
               <div className="col-6 text-secondary">Name:</div>
-              <div className="col-6 fw-semibold text-end">{firstName} {lastName}</div>
+              <div className="col-6 fw-semibold text-end">{orderData?.firstName} {orderData?.lastName}</div>
             </div>
             <div className="row mb-2">
               <div className="col-6 text-secondary">Email:</div>
-              <div className="col-6 fw-semibold text-end">{email}</div>
+              <div className="col-6 fw-semibold text-end">{orderData?.email}</div>
             </div>
             <div className="row mb-2">
               <div className="col-6 text-secondary">Status:</div>
-              <div className="col-6 fw-semibold text-end">{status}</div>
+              <div className="col-6 fw-semibold text-end">{orderData?.status}</div>
             </div>
             <div className="row mb-2">
               <div className="col-6 text-secondary">Total:</div>
-              <div className="col-6 fw-bold text-primary text-end">${total_amount}</div>
+              <div className="col-6 fw-bold text-primary text-end">${orderData?.total_amount}</div>
             </div>
             <div className="row">
               <div className="col-6 text-secondary">Order Date:</div>
-              <div className="col-6 fw-semibold text-end">{created_at}</div>
+              <div className="col-6 fw-semibold text-end">{orderData?.created_at}</div>
             </div>
           </div>
           <h2 className="text-primary fw-semibold fs-4 mb-3">Order Items</h2>
           <div>
-            {cartItem?.map((item, i) => (
-              <div key={i} className="card mb-3 border-0 shadow-sm rounded-3">
+            {orderData?.cartItem?.map((item) => (
+              <div key={item.id} className="card mb-3 border-0 shadow-sm rounded-3">
                 <div className="card-body py-3 px-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <span className="fw-semibold">{item.name}</span>
@@ -73,7 +65,7 @@ const OrderConfirmation = () => {
           <div className="text-center mt-4">
             <button
               className="btn btn-primary btn-lg px-4 rounded-pill shadow"
-              onClick={() => window.location.href = "/"}
+              onClick={() => navigate('/')}
             >
               Continue Shopping
             </button>

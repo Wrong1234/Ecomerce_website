@@ -99,7 +99,7 @@ const handleSubmit = async (e) => {
         })
       });
 
-      const data = await response.json();
+      const orderData = await response.json();
 
       if (response.ok) {
         
@@ -115,10 +115,11 @@ const handleSubmit = async (e) => {
           zipCode: '',
           postalCode: ''
         });
-        navigate('/orderconfirmation', { state: data });
+        console.log(orderData);
+        navigate('/orderconfirmation', { state: orderData });
       } else {
-        if (data.errors) {
-          setErrors(data.errors);
+        if (orderData.errors) {
+          setErrors(orderData.errors);
         } 
       }
     } catch (error) {
