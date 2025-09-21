@@ -3,23 +3,35 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
-
+use App\Http\Controllers\Api\OrderController;
+use App\Models\Order;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Protected routes (authentication required)
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
+Route::prefix('/users')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [AuthController::class, 'index']);
+    Route::get('/{id}', [AuthController::class, 'show']);
+    Route::delete('/logout', [AuthController::class, 'destroy']);
     Route::get('/profile', [AuthController::class, 'profile']);
 });
 
 
 //Products route
-Route::get('/create', [ProductController::class, 'create'])->name('create');
-Route::get('/viewAllProducts', [ProductController::class, 'view'])->name('viewAllProducts');
-Route::Post('/store', [ProductController::class, 'store'])->name('store');
-Route::get('/products', [ProductController::class, 'products']);
-Route::get('/product/{id}', [ProductController::class, 'product']);
+Route::prefix('/products')->group(function(){
+    Route::get('/', [ProductController::class, 'index']);
+    Route::post('/', [ProductController::class, 'store']);
+    Route::get('/{id}', [ProductController::class, 'show']);
+    Route::post('/{id}', [ProductController::class, 'update']);
+    Route::delete('/{id}', [ProductController::class, 'destroy']);
+});
 
 Route::get('/dashboard', [ProductController::class, 'dashboard'])->name('dashboard');
+
+
+//Orders Route
+Route::Post('/orderStore', [OrderController::class, 'store'])->name('orderStore');
+Route::get('/test', function(){
+    return "test";
+});
