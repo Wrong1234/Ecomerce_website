@@ -17,7 +17,7 @@ const ProductList = () => {
       }
 
       const result = await response.json();
-      
+      console.log(result);
       // Handle different API response formats
       let productsArray;
       if (Array.isArray(result)) {
@@ -74,8 +74,8 @@ const ProductList = () => {
         ) : (
           <div className="row g-4">
             {Array.isArray(products) && products.map(product => (
-              <div key={product.id} className="col-12 col-md-6 col-lg-4">
-                <div className="card h-100 shadow-lg border-1">
+              <div key={product.id} className="col-12 col-12 col-lg-6">
+                <div className="card_design">
                   <div className="product-image">
                     <img
                       src={product.image}
@@ -84,9 +84,9 @@ const ProductList = () => {
                     />
                   </div>
 
-                  <div className="card-body d-flex flex-column">
+                  <div className="cart_body">
                     <h5 className="card-title fw-semibold mb-2">{product.name}</h5>
-                    <p className="card-text text-muted mb-3" style={{
+                    <p className="card-text  mb-3" style={{
                       overflow: 'hidden',
                       display: '-webkit-box',
                       WebkitLineClamp: 3,
@@ -95,7 +95,7 @@ const ProductList = () => {
                       {product.description}
                     </p>
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                      <span className="fs-4 fw-bold text-primary">${product.price}</span>
+                      <span className="fs-4 fw-bold">${product.price}</span>
                       {product.weight && (
                         <span className="badge bg-secondary">{product.weight}</span>
                       )}

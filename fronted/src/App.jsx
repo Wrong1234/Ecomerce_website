@@ -7,6 +7,7 @@ import SignupForm from "./Auth/SignupForm";
 import ProductList from "./Components/Product";
 import SingleProduct from "./Components/showSingleProduct";
 import CheckoutForm from "./Components/Checout";
+import OrderConfirmation from "./Components/OrderConfermation";
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <Route path="/products" element={<ProductList />} />
             <Route path="/singleProduct/:id"  element={<SingleProduct />} />
             <Route path="/checkout" element={<CheckoutForm />} />
+            <Route path="/orderconfirmation" element={<OrderConfirmation />} />
          </Routes>
       </div>
     

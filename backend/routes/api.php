@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\ProductController;
 use App\Models\Order;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -25,13 +25,4 @@ Route::prefix('/products')->group(function(){
     Route::get('/{id}', [ProductController::class, 'show']);
     Route::post('/{id}', [ProductController::class, 'update']);
     Route::delete('/{id}', [ProductController::class, 'destroy']);
-});
-
-Route::get('/dashboard', [ProductController::class, 'dashboard'])->name('dashboard');
-
-
-//Orders Route
-Route::Post('/orderStore', [OrderController::class, 'store'])->name('orderStore');
-Route::get('/test', function(){
-    return "test";
 });

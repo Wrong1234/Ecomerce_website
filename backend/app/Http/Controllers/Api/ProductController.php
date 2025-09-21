@@ -19,8 +19,9 @@ class ProductController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
+          
+    
         $request->validate([
             'name'        => 'required',
             'description' => 'required',
@@ -39,63 +40,15 @@ class ProductController extends Controller
 
         // Create new product
         $product = new Product();
-        $product->name        = $request->name;
-        $product->description = $request->description;
-        $product->image       = $imagename; 
-        $product->price       = $request->price;
-        $product->weight      = $request->weight;
-        $product->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => "Product created successfully",
-            'data'    => $product,
-        ]);
-    }
-
-
-    public function update(Request $request, $id)
-    {
-        // Find product
-        $product = Product::findOrFail($id);
-
-        // Validate input
-        $request->validate([
-            'name'        => 'required',
-            'description' => 'required',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'price'       => 'numeric|required',
-            'weight'      => 'numeric|required',
-        ]);
-
-        // Handle image update if a new one is uploaded
-        if ($request->hasFile('image')) {
-            // delete old image if exists
-            $oldImage = public_path('projects/' . $product->image);
-            if (file_exists($oldImage) && is_file($oldImage)) {
-                unlink($oldImage);
-            }
-
-            // upload new image
-            $imagename = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('projects'), $imagename);
-            $product->image = $imagename;
-        }
-
-        // Update other fields
-        $product->name        = $request->name;
-        $product->description = $request->description;
-        $product->price       = $request->price;
-        $product->weight      = $request->weight;
-
-        // Save changes
-        $product->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => "Product updated successfully",
-            'data'    => $product,
-        ]);
+        $product ->name = $request->name;
+        $product ->description = $request->description;
+        $product ->image = $imagename;
+        $product ->price = $request->price;
+        $product ->weight = $request->weight;
+        
+        $product ->save();
+        
+        return redirect()->route('products.viewAllProducts')->withSuccess('Project created successfully.');
     }
 
     public function show($id){

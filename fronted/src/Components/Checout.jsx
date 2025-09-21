@@ -100,11 +100,9 @@ const handleSubmit = async (e) => {
         })
       });
 
-      const data = await response.json();
+      const orderData = await response.json();
 
       if (response.ok) {
-        console.log('Token:', data.token);
-        console.log('User:', data.user);
         
         // Clear form
         setFormData({
@@ -120,9 +118,11 @@ const handleSubmit = async (e) => {
         });
 
         navigate('/Auth/login');
+        console.log(orderData);
+        navigate('/orderconfirmation', { state: orderData });
       } else {
-        if (data.errors) {
-          setErrors(data.errors);
+        if (orderData.errors) {
+          setErrors(orderData.errors);
         } 
       }
     } catch (error) {
