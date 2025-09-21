@@ -36,6 +36,11 @@ const Header = () => {
     setCart(savedCart);
   };
 
+  //Encoded
+  const encodeCart = (cart) => {
+    return encodeURIComponent(JSON.stringify(cart));
+  };
+
   // Update item quantity
   const updateQuantity = (id, newQuantity) => {
     const updatedCart = cart.map(item =>
@@ -167,7 +172,11 @@ const Header = () => {
                           <strong className="fs-5">Total: ${getTotalPrice()}</strong>
                           <div>
                             <button className="btn btn-outline-danger me-2" onClick={clearCart}>Clear Cart</button>
-                            <NavLink className="btn btn-success" to="/checkout" onClick={() => setShowCart(false)}>
+                            <NavLink 
+                               className="btn btn-success" 
+                               to={`/checkout?cart=${encodeCart(cart)}`}
+                               onClick={() => setShowCart(false)}
+                            >
                               Proceed to Checkout
                             </NavLink>
                           </div>
