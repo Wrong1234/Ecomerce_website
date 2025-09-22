@@ -1,118 +1,106 @@
-import "../App.css";
-import { useState, useEffect } from 'react';
-import { NavLink, Link } from "react-router-dom";
+import { useState, useEffect } from "react"
+import { NavLink } from "react-router-dom"
+import "../ProductList.css"
 
 const ProductList = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const fetchData = async () => {
     try {
-      setLoading(true);
-      
-      const response = await fetch('http://127.0.0.1:8000/api/products');
+      setLoading(true)
+
+      const response = await fetch("http://127.0.0.1:8000/api/products")
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const result = await response.json();
-      console.log(result);
-      // Handle different API response formats
-      let productsArray;
-      if (Array.isArray(result)) {
-        // Direct array: [product1, product2, ...]
-        productsArray = result;
-      } else if (result.data && Array.isArray(result.data)) {
-        // Object with data array: {data: [product1, product2, ...]}
-        productsArray = result.data;
-      } else if (result.products && Array.isArray(result.products)) {
-        // Object with products array: {products: [product1, product2, ...]}
-        productsArray = result.products;
+      const result = await response.json()
+      console.log(result)
+      let productsArray = []
+
+      if (result.products && Array.isArray(result.products.data)) {
+        // Laravel pagination format
+        productsArray = result.products.data
+      } else if (Array.isArray(result.products)) {
+        // Direct array
+        productsArray = result.products
+      } else if (Array.isArray(result.data)) {
+        // Object with data array
+        productsArray = result.data
       } else {
-        // Handle other formats or convert object to array
-        productsArray = Object.values(result).flat();
+        // Fallback
+        productsArray = []
       }
-      
-      setProducts(productsArray);
-      console.log(productsArray);
+
+      setProducts(productsArray)
+      console.log("Products:", productsArray)
     } catch (err) {
-      console.error('Fetch error:', err);
+      console.error("Fetch error:", err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchData(); 
-  }, []);
+    fetchData()
+  }, [])
 
   // Loading state
   if (loading) {
     return (
-      <div>
-      <div className="min-h-screen bg-gray-50 py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-center items-center min-h-96">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-gray-600">Loading products...</span>
-          </div>
+      <div className="products-container">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <span className="loading-text">Loading products...</span>
         </div>
       </div>
-      </div>
-    );
+    )
   }
+
   return (
-    <div className="products">
-    <div className="min-vh-100 bg-light py-5 px-3">
-      <div className="container">
+    <div className="products-container">
+      <div className="products-wrapper">
         {products.length === 0 ? (
-          <div className="card shadow-sm p-5 text-center">
-            <div className="text-secondary fs-5 mb-2">No products available</div>
-            <p className="text-muted">Check back later for new products.</p>
+          <div className="empty-state">
+            <div className="empty-state-content">
+              <h3>No products available</h3>
+              <p>Check back later for new products.</p>
+            </div>
           </div>
         ) : (
-          <div className="row g-4">
-            {Array.isArray(products) && products.map(product => (
-              <div key={product.id} className="col-12 col-12 col-lg-6">
-                <div className="card_design">
-                  <div className="product-image">
-                    <img
-                      src={product.image}
-                      className="product-emoji"
-                      // className="w-100 object-fit-cover"
-                    />
+          <div className="products-grid">
+            {Array.isArray(products) &&
+              products.map((product) => (
+                <div key={product.id} className="product-card">
+                  <div className="product-image-container">
+                    <img src={product.image_url || "/placeholder.svg"} alt={product.name} className="product-image" />
+                    <div className="product-overlay">
+                      <span className="quick-view">Quick View</span>
+                    </div>
                   </div>
 
-                  <div className="cart_body">
-                    <h5 className="card-title fw-semibold mb-2">{product.name}</h5>
-                    <p className="card-text  mb-3" style={{
-                      overflow: 'hidden',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical'
-                    }}>
-                      {product.description}
-                    </p>
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <span className="fs-4 fw-bold">${product.price}</span>
-                      {product.weight && (
-                        <span className="badge bg-secondary">{product.weight}</span>
-                      )}
+                  <div className="product-content">
+                    <h3 className="product-title">{product.name}</h3>
+                    <p className="product-description">{product.description}</p>
+
+                    <div className="product-meta">
+                      <div className="product-price">${product.price}</div>
+                      {product.weight && <div className="product-weight">{product.weight}</div>}
                     </div>
-                    <NavLink to={`/singleProduct/${product.id}`} className="btn btn-primary w-100 mt-auto">
+
+                    <NavLink to={`/singleProduct/${product.id}`} className="shop-now-btn">
                       Shop Now
                     </NavLink>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </div>
     </div>
-    </div>
-  );
-};
+  )
+}
 
-export default ProductList;
+export default ProductList
