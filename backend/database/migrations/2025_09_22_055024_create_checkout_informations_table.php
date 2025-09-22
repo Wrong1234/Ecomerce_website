@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('checkout_informations', function (Blueprint $table) {
+       Schema::create('checkout_informations', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->string('firstName');
-            $table->string('lastName');
+            $table->string('lastName')->nullable();
             $table->string('email');
-            $table->string('phone');
-            $table->string('state')->nullable();
+            $table->string('phone')->nullable();
             $table->string('city')->nullable();
-            $table->string('zipCode')->nullable();
             $table->string('postalCode')->nullable();
-            $table->string('Street_address')->nullable();
+            $table->string('zipCode')->nullable();
+            $table->string('state')->nullable();
+            $table->string('street_address')->nullable();
             $table->timestamps();
         });
+
     }
 
     /**
