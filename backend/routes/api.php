@@ -26,3 +26,13 @@ Route::prefix('/products')->group(function(){
     Route::post('/{id}', [ProductController::class, 'update']);
     Route::delete('/{id}', [ProductController::class, 'destroy']);
 });
+
+
+//Orders route
+Route::prefix('/orders')->group(function(){
+    Route::get('/', [OrderController::class, 'index']);
+    Route::post('/', [OrderController::class, 'store']);
+    Route::get('/{id}', [OrderController::class, 'show']);
+    Route::put('/{id}', [OrderController::class, 'update']);       
+    Route::delete('/{id}', [OrderController::class, 'destroy']);
+});

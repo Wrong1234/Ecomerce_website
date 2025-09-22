@@ -20,4 +20,11 @@ class CheckoutInformation extends Model
         'state',
         'street_address',
     ];
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+
 }

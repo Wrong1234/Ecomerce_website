@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -19,36 +21,41 @@ class ProductController extends Controller
         ]);
     }
 
-    public function store(Request $request){
-          
-    
-        $request->validate([
-            'name'        => 'required',
-            'description' => 'required',
-            'image'       => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'price'       => 'numeric|required',
-            'weight'      => 'numeric|required',
+     public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|unique:products,slug',
+            'short_description' => 'nullable|string|max:500',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'weight' => 'nullable|numeric|min:0',
+            'stock_quantity' => 'nullable|integer|min:0',
+            'image' => 'nullable|image|max:2048', // max 2MB
+            'meta_data' => 'nullable|array',
         ]);
 
-        $imagename = null;
-
-        // Check if image is uploaded
-        if ($request->hasFile('image')) {
-            $imagename = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('projects'), $imagename);
+        // Generate slug if not provided
+        if (empty($validated['slug'])) {
+            $validated['slug'] = Str::slug($validated['name']);
         }
 
-        // Create new product
-        $product = new Product();
-        $product ->name = $request->name;
-        $product ->description = $request->description;
-        $product ->image = $imagename;
-        $product ->price = $request->price;
-        $product ->weight = $request->weight;
-        
-        $product ->save();
-        
-        return redirect()->route('products.viewAllProducts')->withSuccess('Project created successfully.');
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        // Convert meta_data array to JSON
+        if (isset($validated['meta_data'])) {
+            $validated['meta_data'] = json_encode($validated['meta_data']);
+        }
+
+        $product = Product::create($validated);
+
+        return response()->json([
+            'message' => 'Product created successfully',
+            'product' => $product
+        ], 201);
     }
 
     public function show($id){
@@ -59,6 +66,49 @@ class ProductController extends Controller
             'success'   => true,
             'message'   => "Get your product",
             'product'   => $product,
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+        
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'slug' => 'sometimes|nullable|string|unique:products,slug,' . $product->id,
+            'short_description' => 'nullable|string|max:500',
+            'description' => 'nullable|string',
+            'price' => 'sometimes|required|numeric|min:0',
+            'weight' => 'nullable|numeric|min:0',
+            'stock_quantity' => 'sometimes|required|integer|min:0',
+            'image' => 'nullable|image|max:20480', // max 2MB
+            'meta_data' => 'nullable|array',
+        ]);
+
+        // Generate slug if not provided and name is updated
+        if (empty($validated['slug']) && isset($validated['name'])) {
+            $validated['slug'] = Str::slug($validated['name']);
+        }
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        // Convert meta_data array to JSON
+        if (isset($validated['meta_data'])) {
+            $validated['meta_data'] = json_encode($validated['meta_data']);
+        }
+
+        $product->update($validated);
+
+        return response()->json([
+            'message' => 'Product updated successfully',
+            'product' => $product
         ]);
     }
 

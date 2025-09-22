@@ -14,7 +14,7 @@ class Order extends Model
         'product_id',
         'user_id',
         'product_details',
-        'price',
+        'unit_price',
         'quantity',
         'subtotal',
         'shipping_fee',
@@ -29,5 +29,9 @@ class Order extends Model
         'order_date'  => 'date'
     ];
 
+    public function checkoutInformation()
+    {
+        return $this->hasOne(CheckoutInformation::class);
+    }
   
 }
