@@ -6,7 +6,7 @@ import LoginForm from "./Auth/LoginForm";
 import SignupForm from "./Auth/SignupForm";
 import ProductList from "./Components/Product";
 import SingleProduct from "./Components/showSingleProduct";
-import CheckoutForm from "./Components/Checout";
+import CheckoutForm from "./Components/Checkout";
 import OrderConfirmation from "./Components/OrderConfermation";
 
 
