@@ -8,7 +8,7 @@ const SingleProduct = () => {
   const { id } = useParams();
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/product/${id}`)
+    fetch(`http://localhost:8000/api/products/${id}`)
       .then(res => {
         if (!res.ok) {
           throw new Error('Product not found');

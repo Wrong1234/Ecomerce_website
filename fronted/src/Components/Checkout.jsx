@@ -79,7 +79,7 @@ const handleSubmit = async (e) => {
     }
 
     try {
-      const response = await fetch('/api/orderStore', {
+      const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
