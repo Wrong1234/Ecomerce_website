@@ -25,15 +25,15 @@ const OrderConfirmation = () => {
           <div className="bg-light rounded-3 p-4 mb-4">
             <div className="row mb-2">
               <div className="col-6 text-secondary">Order ID:</div>
-              <div className="col-6 fw-semibold text-end">{orderData?.order_id}</div>
+              <div className="col-6 fw-semibold text-end">{orderData?.order_code}</div>
             </div>
             <div className="row mb-2">
               <div className="col-6 text-secondary">Name:</div>
-              <div className="col-6 fw-semibold text-end">{orderData?.firstName} {orderData?.lastName}</div>
+              <div className="col-6 fw-semibold text-end">{orderData?.checkout_information['firstName']} {orderData?.checkout_information['lastName']}</div>
             </div>
             <div className="row mb-2">
               <div className="col-6 text-secondary">Email:</div>
-              <div className="col-6 fw-semibold text-end">{orderData?.email}</div>
+              <div className="col-6 fw-semibold text-end">{orderData?.checkout_information['email']}</div>
             </div>
             <div className="row mb-2">
               <div className="col-6 text-secondary">Status:</div>
@@ -41,7 +41,7 @@ const OrderConfirmation = () => {
             </div>
             <div className="row mb-2">
               <div className="col-6 text-secondary">Total:</div>
-              <div className="col-6 fw-bold text-primary text-end">${orderData?.total_amount}</div>
+              <div className="col-6 fw-bold text-primary text-end">${orderData?.subtotal}</div>
             </div>
             <div className="row">
               <div className="col-6 text-secondary">Order Date:</div>
@@ -50,14 +50,14 @@ const OrderConfirmation = () => {
           </div>
           <h2 className="text-primary fw-semibold fs-4 mb-3">Order Items</h2>
           <div>
-            {orderData?.cartItem?.map((item) => (
+            {orderData?.product_details?.map((item) => (
               <div key={item.id} className="card mb-3 border-0 shadow-sm rounded-3">
                 <div className="card-body py-3 px-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <span className="fw-semibold">{item.name}</span>
                     <span className="fw-bold text-primary">${item.price}</span>
                   </div>
-                  <div className="text-secondary">{item.description}</div>
+                  <div className="text-secondary">Quantity : {item.quantity}</div>
                 </div>
               </div>
             ))}
@@ -65,7 +65,7 @@ const OrderConfirmation = () => {
           <div className="text-center mt-4">
             <button
               className="btn btn-primary btn-lg px-4 rounded-pill shadow"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/products')}
             >
               Continue Shopping
             </button>

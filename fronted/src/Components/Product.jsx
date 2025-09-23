@@ -20,22 +20,12 @@ const ProductList = () => {
       console.log(result)
       let productsArray = []
 
-      if (result.products && Array.isArray(result.products.data)) {
-        // Laravel pagination format
-        productsArray = result.products.data
-      } else if (Array.isArray(result.products)) {
-        // Direct array
-        productsArray = result.products
-      } else if (Array.isArray(result.data)) {
-        // Object with data array
-        productsArray = result.data
-      } else {
-        // Fallback
-        productsArray = []
-      }
+      if (result.products && Array.isArray(result.products.data)) productsArray = result.products.data
+      else if (Array.isArray(result.products)) productsArray = result.products
+      else if (Array.isArray(result.data)) productsArray = result.data
+      else productsArray = []
 
       setProducts(productsArray)
-      console.log("Products:", productsArray)
     } catch (err) {
       console.error("Fetch error:", err)
     } finally {

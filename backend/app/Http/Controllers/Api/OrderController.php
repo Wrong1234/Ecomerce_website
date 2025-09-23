@@ -44,6 +44,7 @@ class OrderController extends Controller
         }
         $validated = $this->validateRequest($request);
 
+        $validated['order']['status'] = 'success';
         $order = Order::create($validated['order']);
 
         if (!empty($validated['checkout'])) {
@@ -84,6 +85,7 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         $validated = $this->validateRequest($request, $id);
+        $validated['status'] = 'success';
 
         $order->update($validated['order']);
 
@@ -126,6 +128,7 @@ class OrderController extends Controller
             'subtotal' => 'required|numeric|min:0',
             'shipping_fee' => 'nullable|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
+            'status' => 'nullable|string',
             'order_date' => 'nullable|date',
             'checkout' => 'nullable|array',
             'checkout.firstName' => 'required_with:checkout|string|max:255',
