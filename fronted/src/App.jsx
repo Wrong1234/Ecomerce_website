@@ -8,6 +8,7 @@ import ProductList from "./Components/Product";
 import SingleProduct from "./Components/showSingleProduct";
 import CheckoutForm from "./Components/Checkout";
 import OrderConfirmation from "./Components/OrderConfermation";
+import MilitaryBlog from "./Components/jabervai";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
             <Route path="/singleProduct/:id"  element={<SingleProduct />} />
             <Route path="/checkout" element={<CheckoutForm />} />
             <Route path="/orderconfirmation" element={<OrderConfirmation />} />
+            <Route path="/jabervai" element={<MilitaryBlog />} />
          </Routes>
       </div>
     
