@@ -19,7 +19,8 @@ class Order extends Model
         'subtotal',
         'shipping_fee',
         'tax',
-        'order_date'
+        'order_date',
+        'status'
     ];
 
     protected $casts = [
