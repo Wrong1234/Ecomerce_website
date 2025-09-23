@@ -10,7 +10,7 @@ export default function MilitaryBlogCSS() {
       id: 1,
       title: "3RD DUMMY ARMY FOR TESTING U.S. ARMY",
       date: "5 DAYS AGO",
-      image: "/gettyimages-1488453249-612x612.jpg",
+      image: "/istockphoto-1550071750-612x612-1.jpg",
       comments: 5,
       tags: ["Top Rated"],
       tagColor: "bg-red-500",
@@ -19,7 +19,7 @@ export default function MilitaryBlogCSS() {
       id: 2,
       title: "NELL IRWIN U.S. NAVY",
       date: "SEPTEMBER 15, 2024",
-      image: "/natural-lavender-skin-care-products-arrangement-free-photo.jpg",
+      image: "/free-leetcode-3521542-2944960-1.webp",
       comments: 8,
       tags: ["Lowest Rated"],
       tagColor: "bg-red-600",
@@ -28,7 +28,7 @@ export default function MilitaryBlogCSS() {
       id: 3,
       title: "DUMMY FOG EXPERIMENT FOR THE TOP U.S. ARMY",
       date: "SEPTEMBER 15, 2024",
-      image: "/set-care-beauty-products-skin-29817248.webp",
+      image: "/free-leetcode-3521542-2944960-1.webp",
       comments: 3,
       tags: [],
       tagColor: "",
@@ -37,7 +37,7 @@ export default function MilitaryBlogCSS() {
       id: 4,
       title: "GEORGE E. HORNE U.S. ARMY",
       date: "AUGUST 15, 2024",
-      image: "/gettyimages-1488453249-612x612.jpg",
+      image: "/HORNE-website-6.jpg",
       comments: 12,
       tags: [],
       tagColor: "",
@@ -96,31 +96,23 @@ export default function MilitaryBlogCSS() {
             {blogPosts.map((post) => (
               <article key={post.id} className="blog-post">
                 <div className="post-content">
-                  <img src={post.image || "/placeholder.svg"} alt={post.title} className="post-image" />
                   <div className="post-details">
-                    <div className="post-tags">
-                      {post.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className={`tag ${post.tagColor === "bg-red-500" ? "tag-top-rated" : "tag-lowest-rated"}`}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
                     <p className="post-date">
-                      <Calendar className="date-icon" />
                       {post.date}
                     </p>
                     <h2 className="post-title">{post.title}</h2>
-                    <div className="post-footer">
-                      <div className="post-comments">
-                        <MessageCircle className="comment-icon" />
-                        <span>{post.comments}</span>
-                      </div>
-                      <button className="read-more-btn">READ MORE</button>
-                    </div>
                   </div>
+                  <div>
+                      <img src={post.image || "/placeholder.svg"} alt={post.title} className="post-image" />
+                  </div>
+                </div>
+                <hr />
+                <div className="post-footer">
+                  <div className="post-comments">
+                    <MessageCircle className="comment-icon" />
+                    <span>{post.comments}</span>
+                  </div>
+                  <button className="read-more-btn">READ MORE</button>
                 </div>
               </article>
             ))}
