@@ -7,8 +7,8 @@ import SignupForm from "./Auth/SignupForm";
 import ProductList from "./Components/Product";
 import SingleProduct from "./Components/showSingleProduct";
 import CheckoutForm from "./Components/Checkout";
-import OrderConfirmation from "./Components/OrderConfermation";
-import MilitaryBlog from "./Components/jabervai";
+import OrderConfirmation from "./Components/OrderConfirmation";
+import MilitaryBlog from "./Components/JaberVai";
 
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
       <Header />
       <div>
          <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<ProductList />} />
             <Route path="/Auth/signup" element={<SignupForm />} />
             <Route path="/Auth/login" element={<LoginForm />} />
             <Route path="/products" element={<ProductList />} />

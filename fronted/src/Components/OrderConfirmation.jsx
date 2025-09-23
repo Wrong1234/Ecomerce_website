@@ -1,10 +1,23 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect } from 'react';
 
 const OrderConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const orderData = location.state?.data;
+ useEffect(() => {
+    const hasReloaded = sessionStorage.getItem('orderPageReloaded');
+    if (!hasReloaded) {
+      sessionStorage.setItem('orderPageReloaded', 'true');
+      window.location.reload();
+    }
+    
+    // Cleanup when component unmounts
+    return () => {
+      sessionStorage.removeItem('orderPageReloaded');
+    };
+  }, []);
 
   return (
     <div className="container my-5">
