@@ -1,14 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "./Components/Header";
 import { Routes, Route } from "react-router-dom";
-import Home from "./Components/Home";
 import LoginForm from "./Auth/LoginForm";
 import SignupForm from "./Auth/SignupForm";
 import ProductList from "./Components/Product";
 import SingleProduct from "./Components/showSingleProduct";
 import CheckoutForm from "./Components/Checkout";
 import OrderConfirmation from "./Components/OrderConfirmation";
-import MilitaryBlog from "./Components/JaberVai";
+import MilitaryBlogCSS from "./Components/JaberVai";
+import ForgetPassword from "./Auth/ForgetPassword";
 
 
 function App() {
@@ -25,7 +25,8 @@ function App() {
             <Route path="/singleProduct/:id"  element={<SingleProduct />} />
             <Route path="/checkout" element={<CheckoutForm />} />
             <Route path="/orderconfirmation" element={<OrderConfirmation />} />
-            <Route path="/jabervai" element={<MilitaryBlog />} />
+            <Route path="/jabervai" element={<MilitaryBlogCSS />} />
+            <Route path="/auth/forget-password" element={<ForgetPassword />} />
          </Routes>
       </div>
     

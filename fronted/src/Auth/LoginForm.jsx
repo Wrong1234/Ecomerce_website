@@ -79,7 +79,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="container d-flex align-items-center justify-content-center min-vh-100 bg-light">
+    <div className="container d-flex align-items-center justify-content-center bg-light min-h-210">
       <div className="card shadow-sm p-4" style={{ maxWidth: 400, width: '100%' }}>
         <div className="text-center mb-4">
           <h2 className="fw-bold mb-1">Welcome Back</h2>

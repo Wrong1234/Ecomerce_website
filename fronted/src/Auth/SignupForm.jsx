@@ -74,7 +74,7 @@ const SignupForm = () => {
       return;
     }
 
-    try {
+    // try {
       const response = await fetch('http://localhost:8000/api/register', {
         method: 'POST',
         headers: {
@@ -85,7 +85,8 @@ const SignupForm = () => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          password_confirmation: formData.password_confirmation
+          password_confirmation: formData.password_confirmation,
+          role:"users",
         })
       });
 
@@ -108,21 +109,22 @@ const SignupForm = () => {
       } else {
         if (data.errors) {
           setErrors(data.errors);
+          console.log(setErrors(data.errors));
         } else {
           setMessage(data.message || 'Registration failed. Please try again.');
         }
       }
-    } catch (error) {
-      setMessage('Network error. Please check your connection and try again.');
-      console.error('Registration error:', error);
-    } finally {
-      setLoading(false);
-    }
+    // } catch (error) {
+    //   setMessage('Network error. Please check your connection and try again.');
+    //   console.error('Registration error:', error);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
-    <div className="container d-flex justify-content-center align-items-center min-vh-100">
-      <div className="card shadow-lg p-4" style={{ maxWidth: 400, width: '100%' }}>
+    <div className="container d-flex justify-content-center align-items-center min-h-210">
+      <div className="card shadow-lg p-4">
         <div className="text-center mb-4">
           <h2 className="fw-bold mb-2">Create Account</h2>
         </div>
