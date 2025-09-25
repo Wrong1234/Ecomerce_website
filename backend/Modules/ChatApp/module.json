@@ -1,0 +1,11 @@
+{
+    "name": "ChatApp",
+    "alias": "chatapp",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ChatApp\\Providers\\ChatAppServiceProvider"
+    ],
+    "files": []
+}
