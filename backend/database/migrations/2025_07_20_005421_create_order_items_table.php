@@ -13,16 +13,19 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('order_code', 50)->unique();
+            $table->string('transction_id', 50)->unique();
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->json('product_details'); // snapshot of product info
+            $table->string('status')->default('pending');
             $table->decimal('unit_price', 10, 2);
             $table->unsignedInteger('quantity');
             $table->decimal('subtotal', 12, 2);
             $table->decimal('shipping_fee')->default(0);
             $table->decimal('tax')->default(0);
             $table->date('order_date')->nullable();
+            $table->decimal('amount', 12, 2)->default(0);
+            $table->string('currency')->default('BDT');
             $table->timestamps();
 
             // Foreign keys

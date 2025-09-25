@@ -5,31 +5,32 @@ namespace Modules\SSLEcommerz\Http\Controllers;
 use DB;
 use Illuminate\Http\Request;
 use App\Library\SslCommerz\SslCommerzNotification;
-use Illuminate\Routing\Controller;
+use App\Models\Order;
+use App\Models\CheckoutInformation;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Controller;
 
 class SslCommerzPaymentController extends Controller
 {
-   
+
+     private function generateUniqueOrderCode(): string
+    {
+        do {
+            $randomNumber = mt_rand(100000, 999999); // 6-digit numeric
+            $code = 'SPS-' . $randomNumber;
+        } while (Order::where('transaction_id', $code)->exists());
+
+        return $code;
+    }
 
     public function exampleEasyCheckout()
     {
-        //  $configPath = config_path('sslcommerz.php');
-        // dd([
-        //     'file_exists' => file_exists($configPath),
-        //     'config_path' => $configPath,
-        //     'config_content' => config('sslcommerz'),
-
-        //      'env_store_id' => env('SSLCZ_STORE_ID'),
-        //     'env_password' => env('SSLCZ_STORE_PASSWORD'),
-        //     'env_testmode' => env('SSLCZ_TESTMODE'),
-        //     'config' => config('sslcommerz'),
-        // ]);
-        return view('sslecommerz::exampleEasycheckout');
+        return view('exampleEasycheckout');
     }
 
     public function exampleHostedCheckout()
     {
-        return view('sslecommerz::exampleHosted');
+        return view('exampleHosted');
     }
 
     public function index(Request $request)
@@ -38,22 +39,33 @@ class SslCommerzPaymentController extends Controller
         # Let's say, your oder transaction informations are saving in a table called "orders"
         # In "orders" table, order unique identity is "transaction_id". "status" field contain status of the transaction, "amount" is the order amount to be paid and "currency" is for storing Site Currency which will be checked with paid currency.
 
-        $post_data = array();
-        $post_data['total_amount'] = '10'; # You cant not pay less than 10
+        if (!$request->filled('transaction_id')) {
+            $request->merge(['transaction_id' => $this->generateUniqueOrderCode()]);
+        }
+        $validated = $this->validateRequest($request);
+
+
+        $order = Order::create($validated['order']);
+
+        $checkout = null;
+        if (!empty($validated['checkout'])) {
+            $checkout = $order->checkoutInformation()->create($validated['checkout']);
+        }
+
+        $post_data = [];
+        $post_data['total_amount'] = $order->subtotal;
         $post_data['currency'] = "BDT";
-        $post_data['tran_id'] = uniqid(); // tran_id must be unique
+        $post_data['tran_id'] = $order->transaction_id;
+        $post_data['product_category'] = "Goods";
 
         # CUSTOMER INFORMATION
-        $post_data['cus_name'] = 'Customer Name';
-        $post_data['cus_email'] = 'customer@mail.com';
-        $post_data['cus_add1'] = 'Customer Address';
-        $post_data['cus_add2'] = "";
-        $post_data['cus_city'] = "";
-        $post_data['cus_state'] = "";
-        $post_data['cus_postcode'] = "";
-        $post_data['cus_country'] = "Bangladesh";
-        $post_data['cus_phone'] = '8801XXXXXXXXX';
-        $post_data['cus_fax'] = "";
+        $post_data['cus_name'] = $checkout->firstname . ' ' . $checkout->lastname;
+        $post_data['cus_email'] = $checkout->email;
+        $post_data['cus_phone'] = $checkout->phone;
+        $post_data['cus_address'] = $checkout->street_address;
+        $post_data['cus_state'] = $checkout->state;
+        $post_data['cus_city'] = $checkout->city;
+        $post_data['cus_postalCode'] = $checkout->postalCode;
 
         # SHIPMENT INFORMATION
         $post_data['ship_name'] = "Store Test";
@@ -77,18 +89,14 @@ class SslCommerzPaymentController extends Controller
         $post_data['value_d'] = "ref004";
 
         #Before  going to initiate the payment order status need to insert or update as Pending.
-        $update_product = DB::table('ssl_orders')
-            ->where('transaction_id', $post_data['tran_id'])
-            ->updateOrInsert([
-                'name' => $post_data['cus_name'],
-                'email' => $post_data['cus_email'],
-                'phone' => $post_data['cus_phone'],
-                'amount' => $post_data['total_amount'],
-                'status' => 'Pending',
-                'address' => $post_data['cus_add1'],
-                'transaction_id' => $post_data['tran_id'],
-                'currency' => $post_data['currency']
-            ]);
+        // $update_product = DB::table('orders')
+        //     ->where('transaction_id', $post_data['tran_id'])
+        //     ->updateOrInsert([
+        //         'amount' => $post_data['total_amount'],
+        //         'status' => 'Pending',
+        //         'transaction_id' => $post_data['tran_id'],
+        //         'currency' => $post_data['currency']
+        //     ]);
 
         $sslc = new SslCommerzNotification();
         # initiate(Transaction Data , false: Redirect to SSLCOMMERZ gateway/ true: Show all the Payement gateway here )
@@ -98,6 +106,10 @@ class SslCommerzPaymentController extends Controller
             print_r($payment_options);
             $payment_options = array();
         }
+         return response()->json([
+            'success' => true,
+            'payment_url' => $payment_options['GatewayPageURL'] ?? null,
+        ]);
 
     }
 
@@ -148,7 +160,7 @@ class SslCommerzPaymentController extends Controller
 
 
         #Before  going to initiate the payment order status need to update as Pending.
-        $update_product = DB::table('ssl_orders')
+        $update_product = DB::table('orders')
             ->where('transaction_id', $post_data['tran_id'])
             ->updateOrInsert([
                 'name' => $post_data['cus_name'],
@@ -183,7 +195,7 @@ class SslCommerzPaymentController extends Controller
         $sslc = new SslCommerzNotification();
 
         #Check order status in order tabel against the transaction id or order id.
-        $order_details = DB::table('ssl_orders')
+        $order_details = DB::table('orders')
             ->where('transaction_id', $tran_id)
             ->select('transaction_id', 'status', 'currency', 'amount')->first();
 
@@ -196,7 +208,7 @@ class SslCommerzPaymentController extends Controller
                 in order table as Processing or Complete.
                 Here you can also sent sms or email for successfull transaction to customer
                 */
-                $update_product = DB::table('ssl_orders')
+                $update_product = DB::table('orders')
                     ->where('transaction_id', $tran_id)
                     ->update(['status' => 'Processing']);
 
@@ -219,12 +231,12 @@ class SslCommerzPaymentController extends Controller
     {
         $tran_id = $request->input('tran_id');
 
-        $order_details = DB::table('ssl_orders')
+        $order_details = DB::table('orders')
             ->where('transaction_id', $tran_id)
             ->select('transaction_id', 'status', 'currency', 'amount')->first();
 
         if ($order_details->status == 'Pending') {
-            $update_product = DB::table('ssl_orders')
+            $update_product = DB::table('orders')
                 ->where('transaction_id', $tran_id)
                 ->update(['status' => 'Failed']);
             echo "Transaction is Falied";
@@ -240,12 +252,12 @@ class SslCommerzPaymentController extends Controller
     {
         $tran_id = $request->input('tran_id');
 
-        $order_details = DB::table('ssl_orders')
+        $order_details = DB::table('orders')
             ->where('transaction_id', $tran_id)
             ->select('transaction_id', 'status', 'currency', 'amount')->first();
 
         if ($order_details->status == 'Pending') {
-            $update_product = DB::table('ssl_orders')
+            $update_product = DB::table('orders')
                 ->where('transaction_id', $tran_id)
                 ->update(['status' => 'Canceled']);
             echo "Transaction is Cancel";
@@ -267,7 +279,7 @@ class SslCommerzPaymentController extends Controller
             $tran_id = $request->input('tran_id');
 
             #Check order status in order tabel against the transaction id or order id.
-            $order_details = DB::table('ssl_orders')
+            $order_details = DB::table('orders')
                 ->where('transaction_id', $tran_id)
                 ->select('transaction_id', 'status', 'currency', 'amount')->first();
 
@@ -280,7 +292,7 @@ class SslCommerzPaymentController extends Controller
                     in order table as Processing or Complete.
                     Here you can also sent sms or email for successful transaction to customer
                     */
-                    $update_product = DB::table('ssl_orders')
+                    $update_product = DB::table('orders')
                         ->where('transaction_id', $tran_id)
                         ->update(['status' => 'Processing']);
 
@@ -299,6 +311,60 @@ class SslCommerzPaymentController extends Controller
         } else {
             echo "Invalid Data";
         }
+    }
+
+     private function validateRequest(Request $request, $orderId = null): array
+    {
+        $rules = [
+            'transaction_id' => 'required|string|unique:orders,transaction_id' . ($orderId ? ',' . $orderId : ''),
+            'product_id' => 'required|integer|exists:products,id',
+            'user_id' => 'nullable|integer|exists:users,id',
+            'product_details' => 'required|array',
+            'unit_price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:1',
+            'subtotal' => 'required|numeric|min:0',
+            'shipping_fee' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
+            'status' => 'nullable|string',
+            'order_date' => 'nullable|date',
+            'checkout' => 'nullable|array',
+            'checkout.firstName' => 'required_with:checkout|string|max:255',
+            'checkout.lastName' => 'nullable|string|max:255',
+            'checkout.email' => 'required_with:checkout|email|max:255',
+            'checkout.phone' => 'nullable|string|max:20',
+            'checkout.city' => 'nullable|string|max:255',
+            'checkout.postalCode' => 'nullable|string|max:20',
+            'checkout.zipCode' => 'nullable|string|max:20',
+            'checkout.state' => 'nullable|string|max:255',
+            'checkout.street_address' => 'nullable|string|max:500',
+        ];
+
+        // Make fields optional for update
+        if ($orderId) {
+            foreach ($rules as $key => $rule) {
+                $rules[$key] = 'sometimes|' . $rule;
+            }
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            abort(response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422));
+        }
+
+        $validated = $validator->validated();
+
+        // Separate order and checkout data
+        $orderData = collect($validated)->except('checkout')->toArray();
+        $checkoutData = $validated['checkout'] ?? [];
+
+        return [
+            'order' => $orderData,
+            'checkout' => $checkoutData
+        ];
     }
 
 }
