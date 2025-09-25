@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Search, MessageCircle, Calendar, User } from "lucide-react"
 import "../military-blog.css"
 
-export default function MilitaryBlogCSS() {
+const MilitaryBlogCSS = () => {
   const [searchTerm, setSearchTerm] = useState("")
 
   const blogPosts = [
@@ -75,7 +75,7 @@ export default function MilitaryBlogCSS() {
   ]
 
   return (
-    <div className="military-blog">
+    <div className="military-blog gap-0">
       <header className="military-header">
         <div className="header-container">
           <nav className="header-nav">
@@ -92,7 +92,7 @@ export default function MilitaryBlogCSS() {
       <div className="main-container">
         <div className="content-grid">
           {/* Main Content */}
-          <div className="main-content">
+          <div className="main-content w-185">
             {blogPosts.map((post) => (
               <article key={post.id} className="blog-post">
                 <div className="post-content">
@@ -106,13 +106,18 @@ export default function MilitaryBlogCSS() {
                       <img src={post.image || "/placeholder.svg"} alt={post.title} className="post-image" />
                   </div>
                 </div>
-                <hr />
-                <div className="post-footer">
-                  <div className="post-comments">
-                    <MessageCircle className="comment-icon" />
+                {/* <hr /> */}
+                <div className="flex justify-between items-center border rounded-b-md">
+                  {/* Left: Comments */}
+                  <div className="flex items-center flex-1 px-4 py-3 border-r gap-2 justify-end font-bold text-neutral-400 hover:text-neutral-800 ">
+                    <MessageCircle className="comment-icon mr-2" />
                     <span>{post.comments}</span>
                   </div>
-                  <button className="read-more-btn">READ MORE</button>
+
+                  {/* Right: Read More */}
+                  <div className="px-4 py-2">
+                    <button className="font-semibold hover:text-red-500">READ MORE</button>
+                  </div>
                 </div>
               </article>
             ))}
@@ -189,3 +194,6 @@ export default function MilitaryBlogCSS() {
     </div>
   )
 }
+
+
+export default MilitaryBlogCSS;
