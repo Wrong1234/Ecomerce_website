@@ -117,7 +117,7 @@ const CheckoutForm = () => {
 
         cart_items: cart,
       }
-      const response = await fetch("/api/orders", {
+      const response = await fetch("/api/pay", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +130,7 @@ const CheckoutForm = () => {
       const orderData = await response.json()
   
 
-      if (response.ok) {
+      if (response.ok && data.payment_url) {
         setFormData({
           firstName: "",
           lastName: "",
@@ -145,6 +145,9 @@ const CheckoutForm = () => {
         })
 
         console.log(orderData);
+        console.log(data.payment_url);
+        window.location.href = data.payment_url;
+        
         sessionStorage.removeItem("cart")
         navigate("/orderconfirmation", { state: orderData, replace: true })
         
