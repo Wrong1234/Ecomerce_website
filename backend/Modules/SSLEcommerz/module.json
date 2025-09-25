@@ -1,0 +1,11 @@
+{
+    "name": "SSLEcommerz",
+    "alias": "sslecommerz",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\SSLEcommerz\\Providers\\SSLEcommerzServiceProvider"
+    ],
+    "files": []
+}

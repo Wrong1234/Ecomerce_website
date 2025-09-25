@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/sslecommerz",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\SSLEcommerz\\": "app/",
+            "Modules\\SSLEcommerz\\Database\\Factories\\": "database/factories/",
+            "Modules\\SSLEcommerz\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\SSLEcommerz\\Tests\\": "tests/"
+        }
+    }
+}
