@@ -16,7 +16,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'], // React app URL
+    'allowed_origins' => ['http://localhost:5173'], // React app URL
     //'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],

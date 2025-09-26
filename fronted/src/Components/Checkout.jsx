@@ -77,90 +77,184 @@ const CheckoutForm = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setErrors({})
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault()
+  //   setErrors({})
 
-    if (!validateForm()) {
-      return
-    }
+  //   if (!validateForm()) {
+  //     return
+  //   }
 
-    try {
-      const requestData = {
-        order_code: `ORD-${Date.now()}`,
-        product_id: cart[0]?.id || 1,
-        user_id: null,
-        product_details: cart.map((item) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-        })),
-        unit_price: cart[0]?.price || 0,
-        quantity: cart.reduce((sum, item) => sum + (item.quantity || 1), 0),
-        subtotal: cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0),
-        shipping_fee: 60,
-        tax: 0,
-        order_date: new Date().toISOString().split("T")[0],
+  //   try {
+  //     const requestData = {
+  //       order_code: `ORD-${Date.now()}`,
+  //       product_id: cart[0]?.id || 1,
+  //       user_id: null,
+  //       product_details: cart.map((item) => ({
+  //         id: item.id,
+  //         name: item.name,
+  //         price: item.price,
+  //         quantity: item.quantity,
+  //       })),
+  //       unit_price: cart[0]?.price || 0,
+  //       quantity: cart.reduce((sum, item) => sum + (item.quantity || 1), 0),
+  //       subtotal: cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0),
+  //       shipping_fee: 60,
+  //       tax: 0,
+  //       order_date: new Date().toISOString().split("T")[0],
 
-        checkout: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          street_address: formData.street_address,
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zipCode,
-          postalCode: formData.postalCode,
-        },
+  //       checkout: {
+  //         firstName: formData.firstName,
+  //         lastName: formData.lastName,
+  //         email: formData.email,
+  //         phone: formData.phone,
+  //         street_address: formData.street_address,
+  //         city: formData.city,
+  //         state: formData.state,
+  //         zipCode: formData.zipCode,
+  //         postalCode: formData.postalCode,
+  //       },
 
-        cart_items: cart,
-      }
-      const response = await fetch("/api/pay", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(requestData),
+  //       cart_items: cart,
+  //     }
+  //     const response = await fetch("/api/pay", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Accept: "application/json",
+  //       },
+  //       body: JSON.stringify(requestData),
 
-      })
+  //     })
 
-      const orderData = await response.json()
+  //     const orderData = await response.json()
   
 
-      if (response.ok && data.payment_url) {
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          street_address: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          postalCode: "",
-          couponCode: "",
-        })
+  //     if (orderData.status = "success") {
+  //       setFormData({
+  //         firstName: "",
+  //         lastName: "",
+  //         email: "",
+  //         phone: "",
+  //         street_address: "",
+  //         city: "",
+  //         state: "",
+  //         zipCode: "",
+  //         postalCode: "",
+  //         couponCode: "",
+  //       })
 
-        console.log(orderData);
-        console.log(data.payment_url);
-        window.location.href = data.payment_url;
+  //       console.log(orderData);
+  //       console.log(data.payment_url);
+  //       window.location.href = result.redirect_url;
         
-        sessionStorage.removeItem("cart")
-        navigate("/orderconfirmation", { state: orderData, replace: true })
+  //       sessionStorage.removeItem("cart")
+  //       navigate("/orderconfirmation", { state: orderData, replace: true })
         
-        // window.location.href = "/orderconfirmation?success=true"; 
-      } else {
-        if (orderData.errors) {
-          setErrors(orderData.errors)
-        }
-      }
-    } catch (error) {
-      console.error("Order submission error:", error)
-    }
+  //       // window.location.href = "/orderconfirmation?success=true"; 
+  //     } else {
+  //       if (orderData.errors) {
+  //         setErrors(orderData.errors)
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Order submission error:", error)
+  //   }
+  // }
+  const handleSubmit = async (e) => {
+  e.preventDefault()
+  setErrors({})
+
+  if (!validateForm()) {
+    return
   }
+
+  try {
+    const requestData = {
+      order_code: `ORD-${Date.now()}`,
+      product_id: cart[0]?.id || 1,
+      user_id: null,
+      product_details: cart.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      unit_price: cart[0]?.price || 0,
+      quantity: cart.reduce((sum, item) => sum + (item.quantity || 1), 0),
+      subtotal: cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0),
+      shipping_fee: 60,
+      tax: 0,
+      order_date: new Date().toISOString().split("T")[0],
+
+      checkout: {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        street_address: formData.street_address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        postalCode: formData.postalCode,
+      },
+
+      cart_items: cart,
+    }
+
+    const response = await fetch("/api/pay", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest", // This helps Laravel recognize it as an AJAX request
+      },
+      body: JSON.stringify(requestData),
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const orderData = await response.json()
+    console.log('Response data:', orderData);
+    console.log("check");
+    if (orderData.status === "success" && orderData.redirect_url) {
+      // Clear form data
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        street_address: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        postalCode: "",
+        couponCode: "",
+      })
+
+      // Clear cart
+      sessionStorage.removeItem("cart")
+      
+      // Redirect to SSLCommerz payment gateway
+      console.log("mahabur");
+      console.log(orderData.redirect_url);
+      window.location.href = orderData.redirect_url;
+      
+    } else {
+      console.error('Payment initialization failed:', orderData);
+      if (orderData.errors) {
+        setErrors(orderData.errors)
+      } else {
+        setErrors({ general: 'Payment initialization failed. Please try again.' })
+      }
+    }
+  } catch (error) {
+    console.error("Order submission error:", error)
+    setErrors({ general: 'Network error. Please check your connection and try again.' })
+  }
+}
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
   const shipping = 60

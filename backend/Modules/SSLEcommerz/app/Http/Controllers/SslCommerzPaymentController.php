@@ -103,15 +103,96 @@ class SslCommerzPaymentController extends Controller
         $payment_options = $sslc->makePayment($post_data, 'hosted');
 
         if (!is_array($payment_options)) {
-            print_r($payment_options);
-            $payment_options = array();
+            // print_r($payment_options);
+            // $payment_options = array();
+             return response()->json([
+                'status' => 'success',
+                'redirect_url' => $payment_options
+            ]);
         }
-         return response()->json([
-            'success' => true,
-            'payment_url' => $payment_options['GatewayPageURL'] ?? null,
-        ]);
+        else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Payment initialization failed'
+            ], 400);
+        }
 
     }
+//     public function index(Request $request)
+// {
+//     if (!$request->filled('transaction_id')) {
+//         $request->merge(['transaction_id' => $this->generateUniqueOrderCode()]);
+//     }
+    
+//     $validated = $this->validateRequest($request);
+//     $order = Order::create($validated['order']);
+
+//     $checkout = null;
+//     if (!empty($validated['checkout'])) {
+//         $checkout = $order->checkoutInformation()->create($validated['checkout']);
+//     }
+
+//     $post_data = [];
+//     $post_data['total_amount'] = $order->subtotal;
+//     $post_data['currency'] = "BDT";
+//     $post_data['tran_id'] = $order->transaction_id;
+//     $post_data['product_category'] = "Goods";
+
+//     # CUSTOMER INFORMATION
+//     $post_data['cus_name'] = $checkout->firstName . ' ' . ($checkout->lastName ?? '');
+//     $post_data['cus_email'] = $checkout->email;
+//     $post_data['cus_phone'] = $checkout->phone;
+//     $post_data['cus_add1'] = $checkout->street_address;
+//     $post_data['cus_state'] = $checkout->state;
+//     $post_data['cus_city'] = $checkout->city;
+//     $post_data['cus_postcode'] = $checkout->postalCode;
+//     $post_data['cus_country'] = "Bangladesh";
+
+//     # SHIPMENT INFORMATION
+//     $post_data['ship_name'] = "Store Test";
+//     $post_data['ship_add1'] = "Dhaka";
+//     $post_data['ship_add2'] = "Dhaka";
+//     $post_data['ship_city'] = "Dhaka";
+//     $post_data['ship_state'] = "Dhaka";
+//     $post_data['ship_postcode'] = "1000";
+//     $post_data['ship_phone'] = "";
+//     $post_data['ship_country'] = "Bangladesh";
+
+//     $post_data['shipping_method'] = "NO";
+//     $post_data['product_name'] = "Computer";
+//     $post_data['product_category'] = "Goods";
+//     $post_data['product_profile'] = "physical-goods";
+
+//     # OPTIONAL PARAMETERS
+//     $post_data['value_a'] = "ref001";
+//     $post_data['value_b'] = "ref002";
+//     $post_data['value_c'] = "ref003";
+//     $post_data['value_d'] = "ref004";
+
+//     try {
+//         $sslc = new SslCommerzNotification();
+//         $payment_options = $sslc->makePayment($post_data, 'hosted');
+
+//         if (!is_array($payment_options)) {
+//             return response()->json([
+//                 'status' => 'success',
+//                 'redirect_url' => $payment_options,
+//                 'transaction_id' => $order->transaction_id
+//              ]);
+//         } else {
+//             return response()->json([
+//                 'status' => 'error',
+//                 'message' => 'Payment initialization failed',
+//                 'details' => $payment_options
+//             ], 400);
+//         }
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             'status' => 'error',
+//             'message' => 'Payment gateway error: ' . $e->getMessage()
+//         ], 500);
+//     }
+// }
 
     public function payViaAjax(Request $request)
     {
@@ -313,58 +394,110 @@ class SslCommerzPaymentController extends Controller
         }
     }
 
-     private function validateRequest(Request $request, $orderId = null): array
-    {
-        $rules = [
-            'transaction_id' => 'required|string|unique:orders,transaction_id' . ($orderId ? ',' . $orderId : ''),
-            'product_id' => 'required|integer|exists:products,id',
-            'user_id' => 'nullable|integer|exists:users,id',
-            'product_details' => 'required|array',
-            'unit_price' => 'required|numeric|min:0',
-            'quantity' => 'required|integer|min:1',
-            'subtotal' => 'required|numeric|min:0',
-            'shipping_fee' => 'nullable|numeric|min:0',
-            'tax' => 'nullable|numeric|min:0',
-            'status' => 'nullable|string',
-            'order_date' => 'nullable|date',
-            'checkout' => 'nullable|array',
-            'checkout.firstName' => 'required_with:checkout|string|max:255',
-            'checkout.lastName' => 'nullable|string|max:255',
-            'checkout.email' => 'required_with:checkout|email|max:255',
-            'checkout.phone' => 'nullable|string|max:20',
-            'checkout.city' => 'nullable|string|max:255',
-            'checkout.postalCode' => 'nullable|string|max:20',
-            'checkout.zipCode' => 'nullable|string|max:20',
-            'checkout.state' => 'nullable|string|max:255',
-            'checkout.street_address' => 'nullable|string|max:500',
-        ];
+    //  private function validateRequest(Request $request, $orderId = null): array
+    // {
+    //     $rules = [
+    //         'transaction_id' => 'required|string|unique:orders,transaction_id' . ($orderId ? ',' . $orderId : ''),
+    //         'product_id' => 'required|integer|exists:products,id',
+    //         'user_id' => 'nullable|integer|exists:users,id',
+    //         'product_details' => 'required|array',
+    //         'unit_price' => 'required|numeric|min:0',
+    //         'quantity' => 'required|integer|min:1',
+    //         'subtotal' => 'required|numeric|min:0',
+    //         'shipping_fee' => 'nullable|numeric|min:0',
+    //         'tax' => 'nullable|numeric|min:0',
+    //         'status' => 'nullable|string',
+    //         'order_date' => 'nullable|date',
+    //         'checkout' => 'nullable|array',
+    //         'checkout.firstName' => 'required_with:checkout|string|max:255',
+    //         'checkout.lastName' => 'nullable|string|max:255',
+    //         'checkout.email' => 'required_with:checkout|email|max:255',
+    //         'checkout.phone' => 'nullable|string|max:20',
+    //         'checkout.city' => 'nullable|string|max:255',
+    //         'checkout.postalCode' => 'nullable|string|max:20',
+    //         'checkout.zipCode' => 'nullable|string|max:20',
+    //         'checkout.state' => 'nullable|string|max:255',
+    //         'checkout.street_address' => 'nullable|string|max:500',
+    //     ];
 
-        // Make fields optional for update
-        if ($orderId) {
-            foreach ($rules as $key => $rule) {
-                $rules[$key] = 'sometimes|' . $rule;
-            }
+    //     // Make fields optional for update
+    //     if ($orderId) {
+    //         foreach ($rules as $key => $rule) {
+    //             $rules[$key] = 'sometimes|' . $rule;
+    //         }
+    //     }
+
+    //     $validator = Validator::make($request->all(), $rules);
+
+    //     if ($validator->fails()) {
+    //         abort(response()->json([
+    //             'success' => false,
+    //             'errors' => $validator->errors()
+    //         ], 422));
+    //     }
+
+    //     $validated = $validator->validated();
+
+    //     // Separate order and checkout data
+    //     $orderData = collect($validated)->except('checkout')->toArray();
+    //     $checkoutData = $validated['checkout'] ?? [];
+
+    //     return [
+    //         'order' => $orderData,
+    //         'checkout' => $checkoutData
+    //     ];
+    // }
+    private function validateRequest(Request $request, $orderId = null): array
+{
+    $rules = [
+        'transaction_id' => 'required|string|unique:orders,transaction_id' . ($orderId ? ',' . $orderId : ''),
+        'product_id' => 'required|integer|exists:products,id',
+        'user_id' => 'nullable|integer|exists:users,id',
+        'product_details' => 'required|array',
+        'unit_price' => 'required|numeric|min:0',
+        'quantity' => 'required|integer|min:1',
+        'subtotal' => 'required|numeric|min:0',
+        'shipping_fee' => 'nullable|numeric|min:0',
+        'tax' => 'nullable|numeric|min:0',
+        'status' => 'nullable|string',
+        'order_date' => 'nullable|date',
+        'checkout' => 'nullable|array',
+        'checkout.firstName' => 'required_with:checkout|string|max:255',
+        'checkout.lastName' => 'nullable|string|max:255',
+        'checkout.email' => 'required_with:checkout|email|max:255',
+        'checkout.phone' => 'nullable|string|max:20',
+        'checkout.city' => 'nullable|string|max:255',
+        'checkout.postalCode' => 'nullable|string|max:20',
+        'checkout.zipCode' => 'nullable|string|max:20',
+        'checkout.state' => 'nullable|string|max:255',
+        'checkout.street_address' => 'nullable|string|max:500',
+    ];
+
+    if ($orderId) {
+        foreach ($rules as $key => $rule) {
+            $rules[$key] = 'sometimes|' . $rule;
         }
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            abort(response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422));
-        }
-
-        $validated = $validator->validated();
-
-        // Separate order and checkout data
-        $orderData = collect($validated)->except('checkout')->toArray();
-        $checkoutData = $validated['checkout'] ?? [];
-
-        return [
-            'order' => $orderData,
-            'checkout' => $checkoutData
-        ];
     }
+
+    $validator = Validator::make($request->all(), $rules);
+
+    if ($validator->fails()) {
+        abort(response()->json([
+            'success' => false,
+            'errors' => $validator->errors()
+        ], 422));
+    }
+
+    $validated = $validator->validated();
+    
+    // Separate order and checkout data
+    $orderData = collect($validated)->except('checkout')->toArray();
+    $checkoutData = $validated['checkout'] ?? [];
+
+    return [
+        'order' => $orderData,
+        'checkout' => $checkoutData
+    ];
+}
 
 }
