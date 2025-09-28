@@ -8,6 +8,7 @@ use App\Models\CheckoutInformation;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Library\SslCommerz\SslCommerzNotification;
 
 class OrderController extends Controller
 {
@@ -44,11 +45,34 @@ class OrderController extends Controller
         }
         $validated = $this->validateRequest($request);
 
-        $validated['order']['status'] = 'success';
+
         $order = Order::create($validated['order']);
 
+        $checkout = null;
         if (!empty($validated['checkout'])) {
-            $order->checkoutInformation()->create($validated['checkout']);
+            $checkout = $order->checkoutInformation()->create($validated['checkout']);
+        }
+
+        $post_data = [];
+        $post_data['cus_name'] = $checkout->firstname . ' ' . $checkout->lastname;
+        $post_data['cus_email'] = $checkout->email;
+        $post_data['cus_phone'] = $checkout->phone;
+        $post_data['cus_address'] = $checkout->street_address;
+        $post_data['cus_state'] = $checkout->state;
+        $post_data['cus_city'] = $checkout->city;
+        $post_data['cus_postalCode'] = $checkout->postalCode;
+        $post_data['total_amount'] = $order->subtotal;
+        $post_data['currency'] = "BDT";
+        $post_data['tran_id'] = $order->order_code;
+        $post_data['product_category'] = "Goods";
+
+        $sslc = new SslCommerzNotification();
+        # initiate(Transaction Data , false: Redirect to SSLCOMMERZ gateway/ true: Show all the Payement gateway here )
+        $payment_options = $sslc->makePayment($post_data, 'hosted');
+
+        if (!is_array($payment_options)) {
+            print_r($payment_options);
+            $payment_options = array();
         }
 
         return response()->json([

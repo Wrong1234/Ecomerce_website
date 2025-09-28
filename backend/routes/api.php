@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Models\Order;
+use Modules\SSLEcommerz\Http\Controllers\SslCommerzPaymentController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -35,4 +36,5 @@ Route::prefix('/orders')->group(function(){
     Route::get('/{id}', [OrderController::class, 'show']);
     Route::put('/{id}', [OrderController::class, 'update']);       
     Route::delete('/{id}', [OrderController::class, 'destroy']);
+    // Route::post('/pay', [SslCommerzPaymentController::class, 'index']);
 });

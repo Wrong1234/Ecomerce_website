@@ -10,7 +10,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_code',
+        'transaction_id',
         'product_id',
         'user_id',
         'product_details',
@@ -20,7 +20,9 @@ class Order extends Model
         'shipping_fee',
         'tax',
         'order_date',
-        'status'
+        'status',
+        'amount',
+        'currency',
     ];
 
     protected $casts = [
