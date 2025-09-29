@@ -9,6 +9,7 @@ import CheckoutForm from "./Components/Checkout";
 import OrderConfirmation from "./Components/OrderConfirmation";
 import MilitaryBlogCSS from "./Components/JaberVai";
 import ForgetPassword from "./Auth/ForgetPassword";
+import ChatInterface from "./Components/Message";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path="/orderconfirmation" element={<OrderConfirmation />} />
             <Route path="/jabervai" element={<MilitaryBlogCSS />} />
             <Route path="/auth/forget-password" element={<ForgetPassword />} />
+            <Route path="/messages" element={<ChatInterface />} />
          </Routes>
       </div>
     
