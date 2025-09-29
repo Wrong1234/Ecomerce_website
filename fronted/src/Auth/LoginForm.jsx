@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
@@ -11,6 +11,7 @@ const LoginForm = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [user, setUser] = useState(null);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -61,9 +62,11 @@ const LoginForm = () => {
 
       if (response.ok) {
         setMessage('Login successful! Welcome back.');
-        console.log('Token:', data.token);
-        console.log('User:', data.user);
-        
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        setUser(data.user);
+
         // Clear form
         setFormData({ email: '', password: '' });
         navigate('/');
