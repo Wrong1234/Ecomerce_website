@@ -18,7 +18,7 @@ class OrderController extends Controller
         do {
             $randomNumber = mt_rand(100000, 999999); // 6-digit numeric
             $code = 'SPS-' . $randomNumber;
-        } while (Order::where('order_code', $code)->exists());
+        } while (Order::where('transaction_id', $code)->exists());
 
         return $code;
     }
@@ -40,8 +40,8 @@ class OrderController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (!$request->filled('order_code')) {
-            $request->merge(['order_code' => $this->generateUniqueOrderCode()]);
+        if (!$request->filled('transaction_id')) {
+            $request->merge(['transaction_id' => $this->generateUniqueOrderCode()]);
         }
         $validated = $this->validateRequest($request);
 
@@ -53,27 +53,27 @@ class OrderController extends Controller
             $checkout = $order->checkoutInformation()->create($validated['checkout']);
         }
 
-        $post_data = [];
-        $post_data['cus_name'] = $checkout->firstname . ' ' . $checkout->lastname;
-        $post_data['cus_email'] = $checkout->email;
-        $post_data['cus_phone'] = $checkout->phone;
-        $post_data['cus_address'] = $checkout->street_address;
-        $post_data['cus_state'] = $checkout->state;
-        $post_data['cus_city'] = $checkout->city;
-        $post_data['cus_postalCode'] = $checkout->postalCode;
-        $post_data['total_amount'] = $order->subtotal;
-        $post_data['currency'] = "BDT";
-        $post_data['tran_id'] = $order->order_code;
-        $post_data['product_category'] = "Goods";
+        // $post_data = [];
+        // $post_data['cus_name'] = $checkout->firstname . ' ' . $checkout->lastname;
+        // $post_data['cus_email'] = $checkout->email;
+        // $post_data['cus_phone'] = $checkout->phone;
+        // $post_data['cus_address'] = $checkout->street_address;
+        // $post_data['cus_state'] = $checkout->state;
+        // $post_data['cus_city'] = $checkout->city;
+        // $post_data['cus_postalCode'] = $checkout->postalCode;
+        // $post_data['total_amount'] = $order->subtotal;
+        // $post_data['currency'] = "BDT";
+        // $post_data['tran_id'] = $order->order_code;
+        // $post_data['product_category'] = "Goods";
 
-        $sslc = new SslCommerzNotification();
-        # initiate(Transaction Data , false: Redirect to SSLCOMMERZ gateway/ true: Show all the Payement gateway here )
-        $payment_options = $sslc->makePayment($post_data, 'hosted');
+        // $sslc = new SslCommerzNotification();
+        // # initiate(Transaction Data , false: Redirect to SSLCOMMERZ gateway/ true: Show all the Payement gateway here )
+        // $payment_options = $sslc->makePayment($post_data, 'hosted');
 
-        if (!is_array($payment_options)) {
-            print_r($payment_options);
-            $payment_options = array();
-        }
+        // if (!is_array($payment_options)) {
+        //     print_r($payment_options);
+        //     $payment_options = array();
+        // }
 
         return response()->json([
             'success' => true,
@@ -143,7 +143,7 @@ class OrderController extends Controller
     private function validateRequest(Request $request, $orderId = null): array
     {
         $rules = [
-            'order_code' => 'required|string|unique:orders,order_code' . ($orderId ? ',' . $orderId : ''),
+            'transaction_id' => 'required|string|unique:orders,transaction_id' . ($orderId ? ',' . $orderId : ''),
             'product_id' => 'required|integer|exists:products,id',
             'user_id' => 'nullable|integer|exists:users,id',
             'product_details' => 'required|array',
