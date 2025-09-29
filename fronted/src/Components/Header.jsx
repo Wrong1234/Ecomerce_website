@@ -6,9 +6,21 @@ const Header = () => {
   const [cart, setCart] = useState([])
   const [showCart, setShowCart] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [user, setUser] = useState(null);
 
   // Load cart from sessionStorage on component mount
   useEffect(() => {
+
+   const storedUser = localStorage.getItem("user");
+   if (storedUser) {
+    try {
+      setUser(JSON.parse(storedUser));
+      // window.location.reload();
+    } catch (error) {
+      console.error("Failed to parse user from localStorage:", error);
+      localStorage.removeItem("user"); // clear the bad value
+    }
+  }
     refreshCart()
 
     // Listen for cart updates
@@ -70,6 +82,14 @@ const Header = () => {
     setCart([])
     sessionStorage.setItem("cart", JSON.stringify([]))
   }
+
+  //logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+  }
+
 
   const CartItem = ({ item }) => (
     <div className="cart-item">
@@ -141,12 +161,23 @@ const Header = () => {
 
             {/* Auth Links - Desktop */}
             <div className="auth-links">
-              <a href="/auth/login" className="auth-link login-link">
-                Login
-              </a>
-              <a href="/auth/signup" className="auth-link signup-link">
-                Sign Up
-              </a>
+              {user ? (
+                <>
+                   <span className="user-name">Hello, {user.name}</span>
+                  <button onClick={handleLogout} className="auth-link logout-link">
+                    Logout
+                  </button>
+                </>
+              ):(
+                <>
+                  <a href="/auth/login" className="auth-link login-link">
+                    Login
+                  </a>
+                  <a href="/auth/signup" className="auth-link signup-link">
+                    Sign Up
+                  </a>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -169,13 +200,24 @@ const Header = () => {
               <a href="/contact" className="mobile-nav-link">
                 Contact
               </a>
-              <div className="mobile-auth">
-                <a href="/auth/login" className="mobile-auth-link">
-                  Login
-                </a>
-                <a href="/auth/signup" className="mobile-auth-link signup">
-                  Sign Up
-                </a>
+              <div className="mobile-auth flex flex-col">
+                 {user ? (
+                <>
+                   <span className="user-name">Hello, {user.name}</span>
+                  <button onClick={handleLogout} className="mobile-auth-link">
+                    Logout
+                  </button>
+                </>
+              ):(
+                <>
+                  <a href="/auth/login" className="mobile-auth-link">
+                    Login
+                  </a>
+                  <a href="/auth/signup" className="mobile-auth-link signup">
+                    Sign Up
+                  </a>
+                </>
+              )}
               </div>
             </div>
           </div>
