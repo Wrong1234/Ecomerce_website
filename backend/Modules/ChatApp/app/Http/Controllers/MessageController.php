@@ -18,12 +18,9 @@ class MessageController extends Controller
      * Display paginated messages between authenticated user and another user
      */
     public function index(Request $request): JsonResponse
-    {
-        // $user = Auth::user();
-        // return response()->json([
-        //     'data'=> $user,
-        //     'token' => $request->all(),
-        // ]);
+    {   
+        $user = Auth::user();
+
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'per_page' => 'integer|min:1|max:100'
@@ -39,7 +36,7 @@ class MessageController extends Controller
 
         $userId = $request->user_id;
         $perPage = $request->get('per_page', 20);
-        $authUserId = Auth::id();
+        $authUserId = $user->id;
 
         $messages = Message::where(function($query) use ($authUserId, $userId) {
             $query->where('sender_id', $authUserId)
@@ -48,9 +45,19 @@ class MessageController extends Controller
             $query->where('sender_id', $userId)
                   ->where('receiver_id', $authUserId);
         })
-        ->with(['sender:id,name,avatar', 'receiver:id,name,avatar'])
+        ->with(['sender:id,name', 'receiver:id,name'])
         ->orderBy('created_at', 'desc')
         ->paginate($perPage);
+
+         $messages->getCollection()->transform(function ($message) {
+            return [
+                'id'       => $message->id,
+                'message'  => $message->message,
+                'sender_id'   => $message->sender_id,
+                'receiver_id' => $message->receiver_id,
+                'created_at' => $message->created_at->toDateTimeString(),
+            ];
+        });
 
         return response()->json([
             'success' => true,
@@ -64,6 +71,7 @@ class MessageController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = Auth::user();
+
         $validator = Validator::make($request->all(), [
             'receiver_id' => 'required|exists:users,id|different:' . $user->id,
             'message' => 'required_without:file|string|max:1000',
@@ -102,11 +110,22 @@ class MessageController extends Controller
             $message->load(['sender:id,name', 'receiver:id,name']);
 
             DB::commit();
+           $transformedMessage = [
+                'id'            => $message->id,
+                'message'       => $message->message,
+                'sender_id'     => $message->sender_id,
+                'sender_name'   => $message->sender?->name,
+                'receiver_id'   => $message->receiver_id,
+                'receiver_name' => $message->receiver?->name,
+                'created_at'    => $message->created_at->toDateTimeString(),
+            ];
+
+            broadcast(new MessageSendEvent($transformedMessage))->toOthers();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Message sent successfully',
-                'data' => $message
+                'data' => $transformedMessage
             ], 201);
 
         } catch (\Exception $e) {
@@ -118,6 +137,14 @@ class MessageController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    //call event
+    #[On('echo-private:chat-channel.{sender_id}, MessageSendEvent')]
+    public function listenForMessage($event){
+        $chatmessage = Message::whereId($event['message']['id'])
+                      ->with('sender:id,name', 'receiver:id,name')
+                      ->first();
     }
 
     /**
