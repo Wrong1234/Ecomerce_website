@@ -1,28 +1,83 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Phone, Video, Info, Camera, Image, Mic, Send } from 'lucide-react';
+import {useLocation, useParams} from "react-router-dom";
 
 const ChatInterface = () => {
 
   const [error, setError] = useState({});
-  const [messages, setMessages] = useState([
-    { id: 1, type: 'sent', text: 'Hello' },
-    { id: 2, type: 'received', text: 'Hello' },
-    { id: 3, type: 'received', text: 'How I can help?' },
-    { id: 4, type: 'sent', text: 'idk' },
-    { id: 5, type: 'sent', text: 'Tell me a joke?' },
-    { id: 6, type: 'received', text: 'Hear about the new restaurant called Karma?' },
-    { id: 7, type: 'sent', text: 'No' },
-    {id: 8, type: 'received', text: 'hi'},
-    { id: 9, type: 'sent', text: 'Hello' },
-    { id: 10, type: 'received', text: 'Hello' },
-    { id: 11, type: 'received', text: 'How I can help?' },
-    { id: 12, type: 'sent', text: 'idk' },
-    { id: 13, type: 'sent', text: 'Tell me a joke?' },
-    { id: 14, type: 'received', text: 'Hear about the new restaurant called Karma?' },
-    { id: 15, type: 'sent', text: 'No' },
-    {id: 16, type: 'received', text: 'hi'}
-  ]);
+  const { id: receiver_id } = useParams();
+  const [sender_id, setSenderId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const token = localStorage.getItem("token");
   
+  // Get logged-in user from localStorage
+  useEffect(() => {
+    const userString = localStorage.getItem("user");
+    
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        
+        // Get user ID (adjust based on your user object structure)
+        const userId = user.id;
+        setSenderId(userId);
+        setCurrentUser(user);
+        
+        // console.log("Sender Id: ", userId);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        setError({ user: "Invalid user data" });
+      }
+    } else {
+      console.log("No user found in localStorage");
+      // Optionally redirect to login
+      // navigate('/login');
+    }
+  }, []);
+
+  // console.log("Receiver Id: ", receiver_id);
+
+  const [messages, setMessages] = useState([]);
+
+  const per_page = 10;
+  const params = new URLSearchParams({
+    user_id: receiver_id,
+    per_page: per_page
+  });
+  const fetchData = async () =>{
+
+    try{
+      const response = await fetch(`http://127.0.0.1:8000/api/messages?${params.toString()}`, {
+        method: "GET",
+        headers:{
+          'Accept': "Application/json",
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+
+      const result = await response.json();
+      if(result.success && result.data && result.data.data){
+        const transformedMessages = result.data.data.map(msg => ({
+          id : msg.id,
+          type: msg.sender_id === sender_id ? 'sent' : 'received',
+          text: msg.message,
+          created_at: msg.created_at,
+        }));
+        setMessages(transformedMessages.reverse());
+      }
+    }
+    catch(err){
+      console.log("Message fetch errors", err);
+    }
+  }
+  
+ useEffect(() => {
+  // Only fetch data when sender_id is available
+  if (sender_id && receiver_id && token) {
+    fetchData();
+  }
+}, [sender_id, receiver_id, token]);
+
   const [formData, setFormData] = useState({
     message: "",
   })
@@ -46,35 +101,46 @@ const ChatInterface = () => {
     e.preventDefault();
     setError({});
 
+    if (!formData.message.trim()) return;
+
     try{
       const requestData = {
-        name: formData.message,
+        message: formData.message,
+        sender_id: sender_id,
+        receiver_id: receiver_id,
       }
-
-      console.log(requestData);
 
       const response = await fetch("http://localhost:8000/api/messages", {
         method: "POST",
         headers:{
           'Accept': 'Application/json',
           'Content-Type': 'Application/json',
+          'Authorization': `Bearer ${token}`,
         },
         
         body: JSON.stringify({
-          name:formData.message,
+          message:formData.message,
+          sender_id: sender_id,
+          receiver_id: receiver_id,
         })
       });
 
+      const data = await response.json();
+      
       if(response.ok){
-        console.log(response.data);
+        const newMessage = {
+          id: data.data?.id || Date.now(),
+          type: 'sent',
+          text: formData.message,
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, newMessage]);
+          setFormData({ message: " " })
       }
       else{
         console.log("Fix up errors");
       }
       
-      setFormData({
-        message: " ",
-    })
     }
     catch(error){
       console.log("Type and send message", error)
@@ -99,7 +165,7 @@ const ChatInterface = () => {
               />
             </div>
             <div>
-              <div className="font-medium">Regina</div>
+              <div className="font-medium">Mahabur</div>
               <div className="text-xs text-blue-100">Active 14 minutes ago</div>
             </div>
           </div>
