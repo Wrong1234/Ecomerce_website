@@ -121,8 +121,7 @@ useEffect(() => {
   const fetchData = async () => {
     try {
       const params = new URLSearchParams({
-        user_id: receiver_id,
-        per_page: 10
+        user_id: receiver_id
       });
 
       const response = await fetch(`http://127.0.0.1:8000/api/messages?${params.toString()}`, {
@@ -133,19 +132,23 @@ useEffect(() => {
         }
       });
 
-      const result = await response.json();
-      if (result.success && result.data && result.data.data) {
-        const transformedMessages = result.data.data.map(msg => ({
-          id: msg.id,
-          type: msg.sender_id === sender_id ? 'sent' : 'received',
-          text: msg.message,
-          created_at: msg.created_at,
-        }));
-        setMessages(transformedMessages.reverse());
-      }
-    } catch (err) {
-      console.log("Message fetch errors", err);
+    const result = await response.json();
+    if (result.success && Array.isArray(result.data)) {
+      const transformedMessages = result.data.map(msg => ({
+        id: msg.id,
+        type: Number(msg.sender_id) === Number(sender_id) ? 'sent' : 'received',
+        text: msg.message,
+        created_at: msg.created_at,
+      }));
+      setMessages(transformedMessages.reverse());
+
+      console.log('Fetched messages:', transformedMessages);
     }
+  }
+    catch(err){
+      console.log("Data fetch error: ",err);
+    }
+
   };
 
   useEffect(() => {
@@ -267,19 +270,24 @@ useEffect(() => {
       </div>
 
       {/* Input Bar */}
-      <div className="p-4 bg-white border-t border-gray-200">
+      <div className="p-3 bg-white border-t border-gray-200">
         {error.send && (
           <div className="mb-2 text-red-500 text-sm">{error.send}</div>
         )}
-        <form onSubmit={handleSendMessage} className="flex items-center space-x-3">
+        <form onSubmit={handleSendMessage} className="flex items-center space-x-3 gap-2">
           <div className="flex space-x-2">
-            <button type="button" className="text-blue-500 hover:text-blue-600">
-              <Camera className="w-6 h-6" />
-            </button>
             <button type="button" className="text-blue-500 hover:text-blue-600">
               <Image className="w-6 h-6" />
             </button>
+            <button type="button" className="text-blue-500 hover:text-blue-600">
+              <Camera className="w-6 h-6" />
+            </button>
+            {/* Mic button added */}
+            <button type="button" className="text-blue-500 hover:text-blue-600">
+              <Mic className="w-6 h-6" />
+            </button>
           </div>
+
 
           <input
             type="text"
@@ -287,7 +295,7 @@ useEffect(() => {
             value={formData.message}
             onChange={handleInputChange}
             placeholder="Type a message..."
-            className="flex-1 px-4 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+            className="flex-1 px-3 py-1 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white pr-2"
           />
           <button
             type="submit"
