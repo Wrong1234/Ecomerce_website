@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Models\Order;
 use Modules\SSLEcommerz\Http\Controllers\SslCommerzPaymentController;
+use Illuminate\Http\Request;
+use Illuminate\Broadcasting\BroadcastController; 
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -38,3 +40,6 @@ Route::prefix('/orders')->group(function(){
     Route::delete('/{id}', [OrderController::class, 'destroy']);
     // Route::post('/pay', [SslCommerzPaymentController::class, 'index']);
 });
+
+Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])
+    ->middleware('auth:sanctum');
