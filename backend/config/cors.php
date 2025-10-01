@@ -6,18 +6,24 @@ return [
     |--------------------------------------------------------------------------
     | Cross-Origin Resource Sharing (CORS) Configuration
     |--------------------------------------------------------------------------
-    |
-    | Here you may configure your settings for cross-origin requests.
-    | You are free to adjust these settings for your frontend domain.
-    |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'broadcasting/auth'],
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+        'broadcasting/auth',  // Important for broadcasting
+    ],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'], // React app URL
-    //'allowed_origins_patterns' => [],
+    'allowed_origins' => [
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+    ],
+
+    'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
 
@@ -25,6 +31,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => true, // required if using Sanctum or cookies
+    'supports_credentials' => true, // Important for Sanctum
 
 ];

@@ -142,6 +142,9 @@ const Header = () => {
             <a href="/contact" className="nav-link">
               Contact
             </a>
+            <a href="/users" className="nav-link">
+              Users
+            </a>
           </nav>
 
           {/* Right side actions */}
@@ -199,6 +202,9 @@ const Header = () => {
               </a>
               <a href="/contact" className="mobile-nav-link">
                 Contact
+              </a>
+               <a href="/users" className="nav-link">
+                Users
               </a>
               <div className="mobile-auth flex flex-col">
                  {user ? (

@@ -114,14 +114,14 @@ class MessageController extends Controller
            $transformedMessage = [
                 'id'            => $message->id,
                 'message'       => $message->message,
-                'sender_id'     => $message->sender_id,
+                'sender_id'     => (int)$message->sender_id,
                 'sender_name'   => $message->sender?->name,
-                'receiver_id'   => $message->receiver_id,
+                'receiver_id'   => (int)$message->receiver_id,
                 'receiver_name' => $message->receiver?->name,
                 'created_at'    => $message->created_at->toDateTimeString(),
             ];
 
-            broadcast(new MessageSendEvent($transformedMessage))->toOthers();
+            broadcast(new MessageSendEvent($transformedMessage));
 
             return response()->json([
                 'success' => true,
@@ -139,14 +139,6 @@ class MessageController extends Controller
             ], 500);
         }
     }
-
-    //call event
-    // #[On('echo-private:chat-channel.{sender_id}, MessageSendEvent')]
-    // public function listenForMessage($event){
-    //     $chatmessage = Message::whereId($event['message']['id'])
-    //                   ->with('sender:id,name', 'receiver:id,name')
-    //                   ->first();
-    // }
 
     /**
      * Display a specific message

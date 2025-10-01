@@ -11,6 +11,7 @@ import MilitaryBlogCSS from "./Components/JaberVai";
 import ForgetPassword from "./Auth/ForgetPassword";
 import ChatInterface from "./Components/Message";
 import UserManagement from "./Components/UserManagement";
+import Checking from "./Components/Checking";
 
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
             <Route path="/auth/forget-password" element={<ForgetPassword />} />
             <Route path="/messages/:id" element={<ChatInterface />} />
             <Route path="/users" element={<UserManagement />} />
+            <Route path="/checking" element={<Checking />} />
          </Routes>
       </div>
     
