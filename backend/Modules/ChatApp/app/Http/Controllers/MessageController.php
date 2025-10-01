@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Modules\ChatApp\Events\MessageSendEvent;
 
 class MessageController extends Controller
 {
@@ -140,12 +141,12 @@ class MessageController extends Controller
     }
 
     //call event
-    #[On('echo-private:chat-channel.{sender_id}, MessageSendEvent')]
-    public function listenForMessage($event){
-        $chatmessage = Message::whereId($event['message']['id'])
-                      ->with('sender:id,name', 'receiver:id,name')
-                      ->first();
-    }
+    // #[On('echo-private:chat-channel.{sender_id}, MessageSendEvent')]
+    // public function listenForMessage($event){
+    //     $chatmessage = Message::whereId($event['message']['id'])
+    //                   ->with('sender:id,name', 'receiver:id,name')
+    //                   ->first();
+    // }
 
     /**
      * Display a specific message
