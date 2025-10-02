@@ -142,8 +142,8 @@ const Header = () => {
             <a href="/contact" className="nav-link">
               Contact
             </a>
-            <a href="/users" className="nav-link">
-              Users
+            <a href="/messages" className="nav-link">
+              Massangers
             </a>
           </nav>
 
@@ -203,8 +203,8 @@ const Header = () => {
               <a href="/contact" className="mobile-nav-link">
                 Contact
               </a>
-               <a href="/users" className="nav-link">
-                Users
+               <a href="/messages" className="nav-link">
+                Messanger
               </a>
               <div className="mobile-auth flex flex-col">
                  {user ? (

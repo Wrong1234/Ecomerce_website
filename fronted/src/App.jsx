@@ -1,4 +1,3 @@
-import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "./Components/Header";
 import { Routes, Route } from "react-router-dom";
 import LoginForm from "./Auth/LoginForm";
@@ -30,7 +29,7 @@ function App() {
             <Route path="/orderconfirmation" element={<OrderConfirmation />} />
             <Route path="/jabervai" element={<MilitaryBlogCSS />} />
             <Route path="/auth/forget-password" element={<ForgetPassword />} />
-            <Route path="/messages/:id" element={<ChatInterface />} />
+            <Route path="/messages" element={<ChatInterface />} />
             <Route path="/users" element={<UserManagement />} />
             <Route path="/checking" element={<Checking />} />
          </Routes>
