@@ -24,7 +24,7 @@ class MessageController extends Controller
 
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
-            'per_page' => 'integer|min:1|max:100'
+            'per_page' => 'nullable|integer|min:1|max:100'
         ]);
 
         if ($validator->fails()) {
@@ -36,7 +36,7 @@ class MessageController extends Controller
         }
 
         $userId = $request->user_id;
-        $perPage = $request->get('per_page', 20);
+        // $perPage = $request->get('per_page', 20);
         $authUserId = $user->id;
 
         $messages = Message::where(function($query) use ($authUserId, $userId) {
@@ -48,17 +48,18 @@ class MessageController extends Controller
         })
         ->with(['sender:id,name', 'receiver:id,name'])
         ->orderBy('created_at', 'desc')
-        ->paginate($perPage);
+        ->get();
 
-         $messages->getCollection()->transform(function ($message) {
+        $messages = $messages->map(function ($message) {
             return [
-                'id'       => $message->id,
-                'message'  => $message->message,
-                'sender_id'   => $message->sender_id,
-                'receiver_id' => $message->receiver_id,
+                'id'         => $message->id,
+                'message'    => $message->message,
+                'sender_id'  => $message->sender_id,
+                'receiver_id'=> $message->receiver_id,
                 'created_at' => $message->created_at->toDateTimeString(),
             ];
         });
+
 
         return response()->json([
             'success' => true,
