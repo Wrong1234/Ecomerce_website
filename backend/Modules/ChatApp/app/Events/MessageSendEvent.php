@@ -24,6 +24,7 @@ class MessageSendEvent implements ShouldBroadcastNow
 
     public function broadcastOn(): array
     {
+        // Log::info($message);
         
         return [
             new PrivateChannel('chat-channel.' . (int)$this->message['sender_id']),

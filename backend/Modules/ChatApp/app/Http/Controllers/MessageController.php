@@ -107,7 +107,6 @@ class MessageController extends Controller
             }
 
             $message = Message::create($messageData);
-            
             // Load relationships
             $message->load(['sender:id,name', 'receiver:id,name']);
 

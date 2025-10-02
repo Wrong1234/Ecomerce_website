@@ -13,7 +13,7 @@ class AuthController extends Controller
 {
     public function index(){
 
-        $users = User::paginate(10);
+        $users = User::get();
         return response()->json([
             'success' => true,
             'message' => 'Get all user successfully',
