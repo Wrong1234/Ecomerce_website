@@ -8,18 +8,52 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Modules\ChatApp\Models\Message;
 
 class AuthController extends Controller
 {
     public function index(){
 
-        $users = User::get();
-        return response()->json([
-            'success' => true,
-            'message' => 'Get all user successfully',
-            'users'   => $users,
-        ]);
+            $authUserId = Auth::id();
+
+            // Get all users except authenticated user
+            $users = User::where('id', '!=', $authUserId)->get();
+
+            $chats = $users->map(function ($user) use ($authUserId) {
+
+                // Get last message between auth user and this user
+                $lastMessage = Message::where(function ($q) use ($authUserId, $user) {
+                    $q->where('sender_id', $authUserId)
+                    ->where('receiver_id', $user->id);
+                })->orWhere(function ($q) use ($authUserId, $user) {
+                    $q->where('sender_id', $user->id)
+                    ->where('receiver_id', $authUserId);
+                })
+                ->latest()
+                ->first();
+
+                return [
+                    'id'            => $user->id,
+                    'name'          => $user->name,
+                    'image'         => $user->image,
+                    'lastMessage'   => $lastMessage ? $lastMessage->message : 'No messages yet',
+                    'lastMessageAt' => $lastMessage ? $lastMessage->created_at->toDateTimeString() : null,
+                    'unread'        => $lastMessage
+                                        ? ($lastMessage->receiver_id === $authUserId && !$lastMessage->read ? 1 : 0)
+                                        : 0,
+                    'online'        => false, // presence will update this
+                ];
+            });
+
+            // Sort chats by last message time (latest first)
+            $chats = $chats->sortByDesc(fn($chat) => $chat['lastMessageAt'] ?? now())->values();
+
+            return response()->json([
+                'success' => true,
+                'users'    => $chats
+            ]);
     }
+
     // Register new user
     public function register(Request $request)
     {
@@ -39,6 +73,35 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
+
+        // Create token for user
+        // $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'User registered successfully',
+            'user' => $user,
+            // 'token' => $token,
+        ], 201);
+
+    }
+     public function update(Request $request, $id)
+    {
+
+        $user = User::findOrFail($id);
+        $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255|unique:users',
+            'role'    => 'nullable|string',
+            'image'   => 'nullable|file|max:20480',
+        ]);
+
+        
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('users', 'public');
+        }
+
+        $user->update($validated);
 
         // Create token for user
         // $token = $user->createToken('auth_token')->plainTextToken;
