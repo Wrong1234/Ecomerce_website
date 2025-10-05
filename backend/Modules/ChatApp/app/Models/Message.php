@@ -18,7 +18,8 @@ class Message extends Model
         'sender_id',
         'receiver_id',
         'message',
-        'file'
+        'file',
+        'client_id'
     ];
 
     // protected static function newFactory(): MessageFactory

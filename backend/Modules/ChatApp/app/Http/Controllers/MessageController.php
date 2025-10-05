@@ -59,6 +59,8 @@ class MessageController extends Controller
                 'sender_image'   => $message->sender->image ?? null,
                 'receiver_image' => $message->receiver->image ?? null,
                 'created_at' => $message->created_at->toDateTimeString(),
+                'image'      => $message->file ?? null,
+                'client_id'  => $message->client_id,
             ];
         });
 
@@ -75,11 +77,12 @@ class MessageController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = Auth::user();
-
+        //required_without:message
         $validator = Validator::make($request->all(), [
             'receiver_id' => 'required|exists:users,id|different:' . $user->id,
-            'message' => 'required_without:file|string|max:1000',
-            'file' => 'required_without:message|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240'
+            'message' => 'nullable|string|max:1000',
+            'file' => 'nullable|file|max:20480',
+            'client_id' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -97,7 +100,8 @@ class MessageController extends Controller
             $messageData = [
                 'sender_id' => $user->id,
                 'receiver_id' => $request->receiver_id,
-                'message' => $request->message
+                'message' => $request->message,
+                'client_id' => $request->client_id
             ];
 
             // Handle file upload if present
@@ -121,8 +125,10 @@ class MessageController extends Controller
                 'sender_name'   => $message->sender?->name,
                 'receiver_id'   => (int)$message->receiver_id,
                 'receiver_name' => $message->receiver?->name,
-                'sender_image'   => $message->sender->image ,
-                'receiver_image' => $message->receiver->image,
+                'sender_image'   => $message->sender->image ?? null,
+                'receiver_image' => $message->receiver->image ?? null,
+                'image'          => $message->file,
+                'client_id'      => $message->client_id,
                 'created_at'    => $message->created_at->toDateTimeString(),
             ];
 
