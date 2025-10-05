@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->boolean('read_at')->default(false);
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('image')->after('password')->nullable();
         });
     }
 
@@ -21,8 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->dropColumn('read_at');
+        Schema::table('users', function (Blueprint $table) {
+           $table->dropColumn('image');
+
         });
     }
 };

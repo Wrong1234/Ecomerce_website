@@ -46,7 +46,7 @@ class MessageController extends Controller
             $query->where('sender_id', $userId)
                   ->where('receiver_id', $authUserId);
         })
-        ->with(['sender:id,name', 'receiver:id,name'])
+        ->with(['sender:id,name,image', 'receiver:id,name,image'])
         ->orderBy('created_at', 'desc')
         ->get();
 
@@ -56,6 +56,8 @@ class MessageController extends Controller
                 'message'    => $message->message,
                 'sender_id'  => $message->sender_id,
                 'receiver_id'=> $message->receiver_id,
+                'sender_image'   => $message->sender->image ?? null,
+                'receiver_image' => $message->receiver->image ?? null,
                 'created_at' => $message->created_at->toDateTimeString(),
             ];
         });
@@ -107,8 +109,9 @@ class MessageController extends Controller
             }
 
             $message = Message::create($messageData);
+            
             // Load relationships
-            $message->load(['sender:id,name', 'receiver:id,name']);
+            $message->load(['sender:id,name,image', 'receiver:id,name,image']);
 
             DB::commit();
            $transformedMessage = [
@@ -118,10 +121,12 @@ class MessageController extends Controller
                 'sender_name'   => $message->sender?->name,
                 'receiver_id'   => (int)$message->receiver_id,
                 'receiver_name' => $message->receiver?->name,
+                'sender_image'   => $message->sender->image ,
+                'receiver_image' => $message->receiver->image,
                 'created_at'    => $message->created_at->toDateTimeString(),
             ];
 
-            broadcast(new MessageSendEvent($transformedMessage));
+            broadcast(new MessageSendEvent($transformedMessage))->toOthers();
 
             return response()->json([
                 'success' => true,

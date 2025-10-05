@@ -13,11 +13,12 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Protected routes (authentication required)
-Route::prefix('/users')->group(function () {
+Route::prefix('/users')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [AuthController::class, 'index']);
     Route::get('/{id}', [AuthController::class, 'show']);
     Route::delete('/logout', [AuthController::class, 'destroy']);
     Route::get('/profile', [AuthController::class, 'profile']);
+    Route::post('/{id}', [AuthController::class, 'update']);
 });
 
 

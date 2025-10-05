@@ -5,15 +5,17 @@ import Echo from "laravel-echo"
 import Pusher from "pusher-js"
 
 const ChatInterface = () => {
-  const [users, setUsers] = useState([])
-  const [sender_id, setSenderId] = useState(null)
-  const [currentUser, setCurrentUser] = useState(null)
-  const [receiver_id, setReceiverId] = useState([null])
-  const echoRef = useRef(null)
-  const [formData, setFormData] = useState({ message: "" })
+  const [users, setUsers] = useState([]);
+  const [sender_id, setSenderId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [receiver_id, setReceiverId] = useState([null]);
+  const echoRef = useRef(null);
+  const [formData, setFormData] = useState({ message: "" });
   const [error, setError] = useState({})
   const chatEndRef = useRef(null)
   const [unreadCount, setUnreadCount] = useState(0);
+  const [senderImage, setSenderImage] = useState([null]);
+  const [receiverImage, setReceiverImage] = useState([null]);
   const [mockChats, setMockChats] = useState([
     {
       id: 1,
@@ -48,9 +50,10 @@ const ChatInterface = () => {
 
   //Findout receiver_id
   const findoutReceiverId = (chat) => {
-    setReceiverId(chat.id)
-    setSelectedChat(chat)
-    fetchMessage(chat.id)
+    setReceiverId(chat.id);
+    setSelectedChat(chat);
+    fetchMessage(chat.id);
+    setReceiverImage(chat.avatar);
   }
 
   // Get logged-in user
@@ -62,11 +65,51 @@ const ChatInterface = () => {
         const user = JSON.parse(userString)
         setSenderId(user.id)
         setCurrentUser(user)
+        setSenderImage(user.image);
+        // console.log(senderImage);
       } catch (error) {
         console.error("Error parsing user data:", error)
         setError({ user: "Invalid user data" })
       }
     }
+  }, [])
+
+   // Fetch users and update mockChats
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/users", {
+        method: "GET",
+        headers:{
+          Accept: "Application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const usersData = await response.json()
+      setUsers(usersData)
+      console.log(usersData);
+      // Build mockChats from usersData
+      const chats = usersData.users.map((user, index) => ({
+        id: user.id || index + 1,
+        name: user.name,
+        avatar: user.image ? `http://127.0.0.1:8000/storage/${user.image}`: "/man.jpg",
+        lastMessage: user.lastMessage ? user.lastMessage : "No message yet", // default or from API if available
+        time: user.lastMessageAt ? user.lastMessageAt : "Now",
+        unread: user.unread,
+        online: true,
+      }))
+
+      setMockChats(chats)
+    } catch (error) {
+      console.error("Error fetching users:", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers()
   }, [])
 
   // ChatInterface.jsx - Echo Initialization
@@ -108,35 +151,79 @@ const ChatInterface = () => {
       },
     })
 
-    console.log(receiver_id)
+    // console.log(receiver_id)
     console.log("Echo initialized with Reverb")
 
+    
+    // ✅ PRESENCE CHANNEL: Track online users
+    const presenceChannel = echoRef.current.join("presence.chat")
+      .here((users) => {
+        setMockChats((prevChats) =>
+          prevChats.map((chat) => ({
+            ...chat,
+            online: users.some((u) => u.id === chat.id),
+          }))
+        )
+      })
+      .joining((user) => {
+        setMockChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat.id === user.id ? { ...chat, online: true } : chat
+          )
+        )
+      })
+      .leaving((user) => {
+        setMockChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat.id === user.id ? { ...chat, online: false } : chat
+          )
+        )
+      })
     // Listen to sender's private channel
-    const channel = echoRef.current.private(`chat-channel.${sender_id}`)
+    const channel = echoRef.current.private(`chat-channel.${sender_id}`);
 
-    channel.listen(".MessageSendEvent", (event) => {
-      console.log("Real-time message received:", event)
 
-      // Only add message if it's for current conversation
-      if (
-        event.message.receiver_id === Number.parseInt(receiver_id) ||
-        event.message.sender_id === Number.parseInt(receiver_id)
-      ) {
-        const newMessage = {
-          id: event.message.id,
-          type: event.message.sender_id === Number.parseInt(sender_id) ? "sent" : "received",
-          text: event.message.message,
-          created_at: event.message.created_at,
-        }
+  channel.listen(".MessageSendEvent", (event) => {
+  console.log("Real- time send message: ", event);
+  if (
+      event.message.receiver_id === Number.parseInt(receiver_id) ||
+      event.message.sender_id === Number.parseInt(receiver_id)){ 
 
-        setMessages((prev) => {
-          // Prevent duplicate messages
-          const exists = prev.some((msg) => msg.id === newMessage.id)
-          if (exists) return prev
-          return [...prev, newMessage]
-        })
-      }
-    })
+      const newMessage = {
+        id: event.message.id,
+        text: event.message.message,
+        type: event.message.sender_id === Number.parseInt(sender_id) ? "sent" : "received",
+        sender_id: event.message.sender_id,
+        receiver_id: event.message.receiver_id,
+        sender_image: event.message.sender_image  || "/man.jpg",
+        receiver_image: event.message.receiver_image || "/man.jpg",
+        created_at: event.message.created_at,
+      };
+      console.log(newMessage);
+
+      // Add to messages
+      setMessages(prev => {
+        if (prev.some(m => m.id === newMessage.id)) return prev;
+        return [...prev, newMessage];
+      });
+
+      // Update chat list
+      setMockChats(prev =>
+        [...prev.map(chat => {
+          if (chat.id === newMessage.sender_id || chat.id === newMessage.receiver_id) {
+            return {
+              ...chat,
+              lastMessage: newMessage.text,
+              time: newMessage.created_at,
+              unread: newMessage.receiver_id === sender_id ? chat.unread + 1 : chat.unread,
+            };
+          }
+          return chat;
+        })].sort((a,b) => new Date(b.time) - new Date(a.time))
+      );
+    }
+    
+  });
 
     // Connection status logging
     channel.subscribed(() => {
@@ -149,8 +236,10 @@ const ChatInterface = () => {
 
     return () => {
       if (echoRef.current) {
+        echoRef.current.leave("presence.chat")
         echoRef.current.leave(`chat-channel.${sender_id}`)
         echoRef.current.disconnect()
+        echoRef.current = null
       }
     }
   }, [token, sender_id, receiver_id])
@@ -173,54 +262,23 @@ const ChatInterface = () => {
       })
 
       const result = await response.json()
-      console.log(result, token)
+      console.log(result);
       if (result.success && Array.isArray(result.data)) {
         const transformedMessages = result.data.map((msg) => ({
           id: msg.id,
           type: Number(msg.sender_id) === Number(sender_id) ? "sent" : "received",
           text: msg.message,
+          avatar: msg.receiver_image ? `http://127.0.0.1:8000/storage/${msg.receiver_image}`: "/man.jpg",
           created_at: msg.created_at,
         }))
         setMessages(transformedMessages.reverse())
 
-        console.log("Fetched messages:", transformedMessages)
+        // console.log("Fetched messages:", transformedMessages)
       }
     } catch (err) {
       console.log("Data fetch error: ", err)
     }
   }
-
-  // Fetch users and update mockChats
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/users")
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const usersData = await response.json()
-      setUsers(usersData)
-
-      // Build mockChats from usersData
-      const chats = usersData.users.map((user, index) => ({
-        id: user.id || index + 1,
-        name: user.name,
-        avatar: "/man.jpg",
-        lastMessage: "No messages yet", // default or from API if available
-        time: "Now",
-        unread: 0,
-        online: true,
-      }))
-
-      setMockChats(chats)
-    } catch (error) {
-      console.error("Error fetching users:", error)
-    }
-  }
-
-  useEffect(() => {
-    fetchUsers()
-  }, [])
 
   const [selectedChat, setSelectedChat] = useState(mockChats[0])
 
@@ -313,7 +371,7 @@ const ChatInterface = () => {
         <div className="flex-1 overflow-y-auto">
           {mockChats.map((chat, index) => (
             <div
-              key={chat.id + index}
+              key={chat.id}
               onClick={() => findoutReceiverId(chat)}
               className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
                 selectedChat.id === chat.id ? "bg-gray-100" : ""
@@ -325,9 +383,8 @@ const ChatInterface = () => {
                   alt={chat.name || "Chat"}
                   className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover"
                 />
-                {chat.online && (
-                  <div className="absolute bottom-0 right-0 w-3 h-3 md:w-3.5 md:h-3.5 bg-green-500 border-2 border-white rounded-full" />
-                )}
+              
+                  <div className={`absolute bottom-0 right-0 w-3 h-3 md:w-3.5 md:h-3.5 border-2 border-white rounded-full ${chat.online ? "bg-green-600" : "bg-red-600"}`}/>
               </div>
 
               <div className="flex-1 min-w-0">
@@ -516,3 +573,4 @@ const ChatInterface = () => {
 }
 
 export default ChatInterface
+

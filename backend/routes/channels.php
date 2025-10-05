@@ -12,3 +12,11 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 Broadcast::channel('chat-channel.{userId}', function(?User $user, int $userId){
      return (int) $user->id === (int) $userId;
 });
+
+//check online
+Broadcast::channel('presence.chat', function($user){
+    return [
+        'id' => $user->id,
+        'name' => $user->name,
+    ];
+});
