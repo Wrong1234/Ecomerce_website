@@ -196,20 +196,24 @@ const ChatInterface = () => {
       const newMessage = {
         id: msg.id,
         text: msg.message,
-        image: msg.image || null,
+        image: msg.image ? `http://127.0.0.1:8000/storage/${msg.image}` : " ",
         type: msg.sender_id === Number.parseInt(sender_id) ? "sent" : "received",
         sender_id: msg.sender_id,
         receiver_id: msg.receiver_id,
-        sender_image: msg.sender_image  || "/man.jpg",
-        receiver_image: msg.receiver_image || "/man.jpg",
+        sender_image: msg.sender_image ? `http://127.0.0.1:8000/storage/${msg.sender_image}` : "/man.jpg",
+        receiver_image: msg.receiver_image ? `http://127.0.0.1:8000/storage/${msg.receiver_image}` : "/man.jpg",
         client_id: msg.client_id,
         created_at: msg.created_at,
         
          //set avatar
         avatar:
           msg.type === "sent"
-            ? `${import.meta.env.VITE_APP_URL}/${msg.sender_image}`
-            : `${import.meta.env.VITE_APP_URL}/${msg.receiver_image}`,
+            ? msg.sender_image
+              ? `http://127.0.0.1:8000/storage/${msg.sender_image}`
+              : "/man.jpg"
+              : msg.receiver_image
+              ? `http://127.0.0.1:8000/storage/${msg.receiver_image}`
+              : "/man.jpg",
 
       };
       console.log("check message: ", newMessage);
