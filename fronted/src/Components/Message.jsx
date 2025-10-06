@@ -13,9 +13,12 @@ const ChatInterface = () => {
   const [formData, setFormData] = useState({ message: "" });
   const [error, setError] = useState({})
   const chatEndRef = useRef(null)
+  const fileInputRef = useRef(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [senderImage, setSenderImage] = useState([null]);
   const [receiverImage, setReceiverImage] = useState([null]);
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [mockChats, setMockChats] = useState([
     {
       id: 1,
@@ -184,28 +187,58 @@ const ChatInterface = () => {
 
 
   channel.listen(".MessageSendEvent", (event) => {
-  console.log("Real- time send message: ", event);
+  const msg = event.message;
+
   if (
-      event.message.receiver_id === Number.parseInt(receiver_id) ||
-      event.message.sender_id === Number.parseInt(receiver_id)){ 
+      msg.receiver_id === Number.parseInt(receiver_id) ||
+      msg.sender_id === Number.parseInt(receiver_id)){ 
 
       const newMessage = {
-        id: event.message.id,
-        text: event.message.message,
-        type: event.message.sender_id === Number.parseInt(sender_id) ? "sent" : "received",
-        sender_id: event.message.sender_id,
-        receiver_id: event.message.receiver_id,
-        sender_image: event.message.sender_image  || "/man.jpg",
-        receiver_image: event.message.receiver_image || "/man.jpg",
-        created_at: event.message.created_at,
-      };
-      console.log(newMessage);
+        id: msg.id,
+        text: msg.message,
+        image: msg.image || null,
+        type: msg.sender_id === Number.parseInt(sender_id) ? "sent" : "received",
+        sender_id: msg.sender_id,
+        receiver_id: msg.receiver_id,
+        sender_image: msg.sender_image  || "/man.jpg",
+        receiver_image: msg.receiver_image || "/man.jpg",
+        client_id: msg.client_id,
+        created_at: msg.created_at,
+        
+         //set avatar
+        avatar:
+          msg.type === "sent"
+            ? `${import.meta.env.VITE_APP_URL}/${msg.sender_image}`
+            : `${import.meta.env.VITE_APP_URL}/${msg.receiver_image}`,
 
+      };
+      console.log("check message: ", newMessage);
+      
       // Add to messages
-      setMessages(prev => {
-        if (prev.some(m => m.id === newMessage.id)) return prev;
-        return [...prev, newMessage];
-      });
+       setMessages((prev) => {
+          // ✅ Step 1: Replace optimistic (temporary) message
+          if (msg.client_id && prev.some((m) => m.client_id === msg.client_id)) {
+            return prev.map((m) =>
+              m.client_id === msg.client_id
+                ? { ...m, ...newMessage, uploading: false }
+                : m
+            );
+          }
+
+          // ✅ Step 2: Prevent duplicates (real-time receiver case)
+          if (prev.some((m) => m.id === newMessage.id)) {
+            return prev;
+          }
+
+          // ✅ Step 3: Add new incoming message
+          return [...prev, newMessage];
+        });
+
+      setUsers(prev => ({
+        ...prev, 
+        [msg.sender_id]: msg.sender_id,
+         [msg.receiver_id]: msg.receiver_id,
+      }));
 
       // Update chat list
       setMockChats(prev =>
@@ -236,6 +269,7 @@ const ChatInterface = () => {
 
     return () => {
       if (echoRef.current) {
+        channel.stopListening(".MessageSendEvent");
         echoRef.current.leave("presence.chat")
         echoRef.current.leave(`chat-channel.${sender_id}`)
         echoRef.current.disconnect()
@@ -262,16 +296,17 @@ const ChatInterface = () => {
       })
 
       const result = await response.json()
-      console.log(result);
       if (result.success && Array.isArray(result.data)) {
         const transformedMessages = result.data.map((msg) => ({
           id: msg.id,
           type: Number(msg.sender_id) === Number(sender_id) ? "sent" : "received",
           text: msg.message,
-          avatar: msg.receiver_image ? `http://127.0.0.1:8000/storage/${msg.receiver_image}`: "/man.jpg",
+          image: msg.image ? `http://127.0.0.1:8000/storage/${msg.image}` : " ",
+          avatar: msg?.receiver_image ? `http://127.0.0.1:8000/storage/${msg.receiver_image}`: "/man.jpg",
           created_at: msg.created_at,
         }))
         setMessages(transformedMessages.reverse())
+        // console.log("transformed: ", transformedMessages);
 
         // console.log("Fetched messages:", transformedMessages)
       }
@@ -281,6 +316,83 @@ const ChatInterface = () => {
   }
 
   const [selectedChat, setSelectedChat] = useState(mockChats[0])
+
+  // programmatically open file picker
+  const triggerFileSelect = () => {
+    fileInputRef.current?.click(); 
+  };
+
+// File input handler
+const handleFileChange = (e) => {
+  const selectedFile = e.target.files[0];
+  if (!selectedFile) return;
+
+  if (selectedFile.size > 5 * 1024 * 1024) { // 5MB limit
+    setError({ send: "File size must be less than 5MB" });
+    return;
+  }
+
+  setFile(selectedFile);
+  setPreview(URL.createObjectURL(selectedFile));
+};
+
+const handleSendMessage = async (e) => {
+  e.preventDefault();
+  setError({});
+
+  // Prevent sending if no text and no file
+  if (!formData.message.trim() && !file) return;
+
+  const clientId = `tmp-${Date.now()}-${Math.random()}`; // for optimistic UI
+
+  // Optional: add optimistic message to UI (if you maintain local state)
+  const tempMsg = {
+    id: clientId,
+    text: formData.message,
+    image: file ? URL.createObjectURL(file) : null,
+    type: "sent",
+    sender_id: sender_id, // make sure you have sender_id
+    receiver_id: receiver_id,
+    client_id: clientId,
+    uploading: !!file,
+  };
+  setMessages(prev => [...prev, tempMsg]);
+
+  try {
+    const form = new FormData();
+    form.append("receiver_id", receiver_id);
+    form.append("message", formData.message);
+    form.append("client_id", clientId); // match optimistic message
+    if (file) form.append("file", file); // 'file' matches your backend field
+
+    const response = await fetch("http://localhost:8000/api/messages", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+        // Content-Type: "multipart/form-data"
+
+      },
+      body: form,
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Clear input & file - real message will be replaced via Echo listener
+      setFormData({ message: "" });
+      setFile(null);
+      setPreview(null);
+      console.log("Message sent successfully");
+    } else {
+      console.log("Send message error:", data);
+      setError({ send: data.message || "Failed to send message" });
+    }
+  } catch (error) {
+    console.log("Send message error:", error);
+    setError({ send: "Network error occurred" });
+  }
+};
 
   //send real-time message
   const handleInputChange = (e) => {
@@ -297,44 +409,6 @@ const ChatInterface = () => {
       }))
     }
   }
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault()
-    setError({})
-
-    if (!formData.message.trim()) return
-
-    try {
-      const response = await fetch("http://localhost:8000/api/messages", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-        body: JSON.stringify({
-          message: formData.message,
-          receiver_id: receiver_id,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        // Clear input - message will be added via Echo listener
-        setFormData({ message: "" })
-        console.log("Message sent successfully")
-      } else {
-        console.log("Send message error:", data)
-        setError({ send: data.message || "Failed to send message" })
-      }
-    } catch (error) {
-      console.log("Send message error:", error)
-      setError({ send: "Network error occurred" })
-    }
-  }
-
-  // count un read message
 
 
   return (
@@ -501,15 +575,16 @@ const ChatInterface = () => {
                   )}
 
                   <div>
-                    {message.image ? (
-                      <div className="bg-white rounded-2xl p-2 md:p-3 shadow-sm">
+                      {message.image && message.image.trim() !== "" && (
+                      <div className="bg-white rounded-2xl p-2 md:p-3 shadow-sm gp-1">
                         <img
                           src={message.image || "/placeholder.svg"}
-                          alt="Shared"
+                          // alt="Shared"
                           className="rounded-xl max-w-[200px] sm:max-w-xs"
                         />
                       </div>
-                    ) : (
+                      )}
+                      {message.text && message.text.trim() !== "" &&  (
                       <div
                         className={`px-3 py-2 md:px-4 md:py-2 rounded-2xl shadow-sm text-sm d:text-base ${
                           message.type === "sent" ? "bg-blue-500 text-white" : "bg-white text-gray-800"
@@ -526,15 +601,37 @@ const ChatInterface = () => {
           </div>
         </div>
 
-        {/* Input Bar */}
+       {/* Preview above the input bar container */}
+       {preview && (
+          <div className="mb-2 flex items-center gap-2">
+            <img src={preview} alt="preview" className="w-24 h-24 object-cover rounded" />
+            <button onClick={() => { setFile(null); setPreview(null); }} className="text-red-500">Remove</button>
+          </div>
+        )}
+
+
+        {/* Input Bar Container */}
         <div className="bg-white border-t border-gray-200 p-3 md:p-4 mb-1">
           <form onSubmit={handleSendMessage} className="flex items-center gap-1 md:gap-2">
+            {/* File upload button */}
             <button
               type="button"
+              onClick={triggerFileSelect}
               className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full text-blue-500 transition-colors"
             >
               <ImageIcon className="w-4 h-4 md:w-5 md:h-5" />
             </button>
+
+            {/* Hidden file input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/*"
+            />
+
+            {/* Other buttons */}
             <button
               type="button"
               className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full text-blue-500 transition-colors"
@@ -548,6 +645,7 @@ const ChatInterface = () => {
               <Mic className="w-4 h-4 md:w-5 md:h-5" />
             </button>
 
+            {/* Text input */}
             <input
               type="text"
               name="message"
@@ -557,16 +655,20 @@ const ChatInterface = () => {
               className="flex-1 px-3 py-2 md:px-4 md:py-2 bg-gray-100 rounded-full text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
+            {/* Submit button */}
             <button
               type="submit"
-              disabled={!formData.message.trim()}
+              disabled={!formData.message.trim() && !file}
               className="p-1.5 md:p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >
               <Send className="w-4 h-4 md:w-5 md:h-5" />
             </button>
+
             <div ref={chatEndRef} />
           </form>
         </div>
+
+
       </div>
     </div>
   )
