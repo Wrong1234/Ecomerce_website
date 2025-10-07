@@ -19,14 +19,17 @@ class Message extends Model
         'receiver_id',
         'message',
         'file',
-        'client_id'
+        'client_id',
+        'read_at'
     ];
 
     // protected static function newFactory(): MessageFactory
     // {
     //     // return MessageFactory::new();
     // }
-
+    protected $casts = [
+        'read_at' => 'boolean',
+    ];
     public function sender(){
         return $this->belongsTo(User::class, 'sender_id');
     }
