@@ -265,7 +265,7 @@ class MessageController extends Controller
                 $query->where('sender_id', $authUserId)
                       ->orWhere('receiver_id', $authUserId);
             })
-            ->with(['sender:id,name,avatar', 'receiver:id,name,avatar'])
+            ->with(['sender:id,name,image', 'receiver:id,name,image'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy(function($message) use ($authUserId) {
@@ -327,7 +327,7 @@ class MessageController extends Controller
        $authUserId = $user->id;
 
        $count = Message::where('receiver_id', $authUserId)
-            ->whereNull('read_at')
+            ->where('read_at', 0)
             ->count();
 
         return response()->json([
