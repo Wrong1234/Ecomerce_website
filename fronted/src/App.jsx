@@ -11,6 +11,7 @@ import ForgetPassword from "./Auth/ForgetPassword";
 import ChatInterface from "./Components/Message";
 import UserManagement from "./Components/UserManagement";
 import Checking from "./Components/Checking";
+import VoiceMessage from "./Components/VoiceMessage";
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path="/messages" element={<ChatInterface />} />
             <Route path="/users" element={<UserManagement />} />
             <Route path="/checking" element={<Checking />} />
+            <Route path="/voice-message" element={ <VoiceMessage />} />
          </Routes>
       </div>
     

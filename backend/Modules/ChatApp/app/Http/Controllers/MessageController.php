@@ -89,10 +89,11 @@ class MessageController extends Controller
         $user = Auth::user();
         //required_without:message
         $validator = Validator::make($request->all(), [
-            'receiver_id' => 'required|exists:users,id|different:' . $user->id,
-            'message' => 'nullable|string|max:1000',
-            'file' => 'nullable|file|max:20480',
-            'client_id' => 'nullable|string',
+            'receiver_id'       => 'required|exists:users,id|different:' . $user->id,
+            'client_id'         => 'nullable|string',   
+            'message' => 'required_without_all:file,audio|nullable|string|max:1000',
+            'file'    => 'required_without_all:message,audio|nullable|file|max:20480',
+            'audio'   => 'required_without_all:message,file|nullable|file|mimes:mp3,wav,ogg,webm|max:51200',
         ]);
 
         if ($validator->fails()) {
@@ -122,12 +123,18 @@ class MessageController extends Controller
                 $messageData['file'] = $filePath;
             }
 
+            $audioPath = "";
+           if ($request->hasFile('audio')) {
+                $audioPath = $request->file('audio')->store('voices', 'public');
+                $messageData['audio'] = $audioPath;
+            }
+
             $message = Message::create($messageData);
             
             // Load relationships
             $message->load(['sender:id,name,image', 'receiver:id,name,image']);
 
-            DB::commit();
+           DB::commit();
            $transformedMessage = [
                 'id'            => $message->id,
                 'message'       => $message->message,
@@ -139,7 +146,9 @@ class MessageController extends Controller
                 'receiver_image' => $message->receiver->image ?? null,
                 'image'          => $message->file,
                 'client_id'      => $message->client_id,
+                'audio'          => $message->audio, 
                 'created_at'    => $message->created_at->toDateTimeString(),
+                'read_at'        => $message->read_at,
             ];
 
             broadcast(new MessageSendEvent($transformedMessage))->toOthers();

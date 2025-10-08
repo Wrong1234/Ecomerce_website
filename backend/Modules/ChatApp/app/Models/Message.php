@@ -20,7 +20,9 @@ class Message extends Model
         'message',
         'file',
         'client_id',
-        'read_at'
+        'read_at',
+        'audio',
+        'video'
     ];
 
     // protected static function newFactory(): MessageFactory
