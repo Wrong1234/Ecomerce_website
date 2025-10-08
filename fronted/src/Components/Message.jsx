@@ -15,6 +15,7 @@ const ChatInterface = () => {
   const chatEndRef = useRef(null)
   const fileInputRef = useRef(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const[read, setRead] = useState(null);
   const [senderImage, setSenderImage] = useState(null);
   const [receiverImage, setReceiverImage] = useState([null]);
   const [file, setFile] = useState(null);
@@ -57,8 +58,10 @@ const ChatInterface = () => {
     setSelectedChat(chat);
     fetchMessage(chat.id);
     setReceiverImage(chat.avatar);
+    messageReadAt(chat);
 
   }
+
 
   // Get logged-in user
   useEffect(() => {
@@ -94,7 +97,6 @@ const ChatInterface = () => {
 
       const usersData = await response.json()
       setUsers(usersData)
-      console.log(usersData);
       // Build mockChats from usersData
       const chats = usersData.users.map((user, index) => ({
         id: user.id || index + 1,
@@ -105,7 +107,7 @@ const ChatInterface = () => {
         unread: user.unread,
         online: true,
       }))
-
+      console.log(chats);
       setMockChats(chats)
     } catch (error) {
       console.error("Error fetching users:", error)
@@ -318,6 +320,36 @@ const ChatInterface = () => {
     } catch (err) {
       console.log("Data fetch error: ", err)
     }
+  }
+  const messageReadAt = async(chat) =>{
+    console.log(chat);
+    try{
+      if(!chat.id) return;
+  
+      const response = await fetch(`http://127.0.0.1:8000/api/messages/read-at/${chat.id}`,{
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
+
+      const result = await response.json();
+      console.log(result);
+      if(response.ok && result.success){
+        setMockChats((prevChats) =>
+          prevChats.map((c) =>
+            c.id === chat.id ? { ...c, unread: 0 } : c
+          )
+        );
+      }
+
+    }
+    catch(err){
+      console.log("Message read error", err);
+    }
+
+
   }
 
   const [selectedChat, setSelectedChat] = useState(mockChats[0])

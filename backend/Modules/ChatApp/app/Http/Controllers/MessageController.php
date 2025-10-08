@@ -12,9 +12,19 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Modules\ChatApp\Events\MessageSendEvent;
+use App\Services\ChatService;
 
 class MessageController extends Controller
 {
+    //management chatService
+
+    protected $chatService;
+
+    public function __construct(ChatService $chatService){
+        $this->chatService = $chatService;
+    }
+
+
     /**
      * Display paginated messages between authenticated user and another user
      */
@@ -287,35 +297,37 @@ class MessageController extends Controller
     /**
      * Mark messages as read (if implementing read status)
      */
-    public function markAsRead(Request $request): JsonResponse
+    public function markAsRead($id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id'
-        ]);
+        // dd(request()->all());
+        // $validator = Validator::make($request->all(), [
+        //     'user_id' => 'required|exists:users,id'
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $userId = $request->user_id;
-        $user = Auth::user();
+        $userId = (int) $id;
+        $user = Auth::user(); 
         $authUserId = $user->id;
 
-        // This assumes you have a 'read_at' column in messages table
-        Message::where('sender_id', $userId)
+        // return response()->json([
+        //     'sender_id' => $authUserId,
+        //     'receiver_id' => $userId,
+        // ]);
+        // Update unread messages (assuming read_at=0 means unread)
+        $updated = Message::where('sender_id', $userId)
             ->where('receiver_id', $authUserId)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
+            ->where('read_at', false)
+            ->update(['read_at' => true]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Messages marked as read'
+       return response()->json([
+            'sender_id' => $authUserId,
+            'receiver_id' => $userId,
+            'success' => $updated > 0,
+            'message' => $updated > 0
+                ? 'Messages marked as read'
+                : 'No unread messages found',
         ]);
     }
+
 
     /**
      * Get unread message count
@@ -325,10 +337,11 @@ class MessageController extends Controller
        $user = Auth::user();
 
        $authUserId = $user->id;
-
-       $count = Message::where('receiver_id', $authUserId)
-            ->where('read_at', 0)
-            ->count();
+       
+       $count =  $this->chatService->unreadCount($authUserId);
+    //    $count = Message::where('receiver_id', $authUserId)
+    //         ->where('read_at', 0)
+    //         ->count();
 
         return response()->json([
             'success' => true,

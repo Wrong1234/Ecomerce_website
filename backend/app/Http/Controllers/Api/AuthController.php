@@ -9,9 +9,17 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Modules\ChatApp\Models\Message;
+use App\Services\ChatService;
 
 class AuthController extends Controller
 {
+
+    protected $chatService;
+    
+    public function __construct(ChatService $chatService){
+        $this->chatService = $chatService;
+    }
+
     public function index(){
 
             $authUserId = Auth::id();
@@ -31,6 +39,10 @@ class AuthController extends Controller
                 })
                 ->latest()
                 ->first();
+                $count =  $this->chatService->unreadCount($user->id);
+                // $unReadMessage = Message::where(function($q) use ($authUserId), $user){
+
+                // }
 
                 return [
                     'id'            => $user->id,
@@ -38,9 +50,7 @@ class AuthController extends Controller
                     'image'         => $user->image,
                     'lastMessage'   => $lastMessage ? $lastMessage->message : 'No messages yet',
                     'lastMessageAt' => $lastMessage ? $lastMessage->created_at->toDateTimeString() : null,
-                    'unread'        => $lastMessage
-                                        ? ($lastMessage->receiver_id === $authUserId && !$lastMessage->read ? 1 : 0)
-                                        : 0,
+                    'unread'        => $count,
                     'online'        => false, // presence will update this
                 ];
             });

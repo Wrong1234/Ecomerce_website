@@ -23,4 +23,5 @@ Route::prefix("/messages")->middleware('auth:sanctum')->group(function(){
     Route::get("/{id}", [MessageController::class, "show"]);
     Route::put("/{id}", [MessageController::class, "update"]);
     Route::delete("/{id}", [MessageController::class, "destroy"]);
+    Route::put("/read-at/{id}", [MessageController::class, 'markAsRead']);
 });
