@@ -70,6 +70,7 @@ class MessageController extends Controller
                 'receiver_image' => $message->receiver->image ?? null,
                 'created_at' => $message->created_at->toDateTimeString(),
                 'image'      => $message->file ?? null,
+                'audio'      => $message->audio ?? null,
                 'client_id'  => $message->client_id,
             ];
         });

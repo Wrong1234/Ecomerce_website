@@ -320,7 +320,7 @@ const ChatInterface = () => {
           created_at: msg.created_at,
         }))
         setMessages(transformedMessages.reverse())
-        // console.log("transformed: ", transformedMessages);
+        console.log("transformed: ", transformedMessages);
 
         // console.log("Fetched messages:", transformedMessages)
       }
