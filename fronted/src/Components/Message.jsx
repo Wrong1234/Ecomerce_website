@@ -456,7 +456,7 @@ const handleSendMessage = async (e) => {
 
 
   return (
-    <div className="flex bg-white h-screen">
+    <div className="flex bg-white h-[89.6vh]">
       {/* Left Sidebar - Chat List */}
       <div className="hidden md:flex md:w-80 lg:w-96 border-r border-gray-200 flex-col">
         {/* Sidebar Header */}
@@ -665,7 +665,7 @@ const handleSendMessage = async (e) => {
           </div>
         )}
 
-       <div className="bg-[#202c33] px-4 py-3">
+       <div className="bg-white px-4 py-3">
             {!showRecorder ? (
               <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                 {/* Left side icons */}
@@ -690,14 +690,14 @@ const handleSendMessage = async (e) => {
                  <button
                     type="button"
                     onClick={triggerFileSelect}
-                    className="p-2 text-[#8696a0] hover:text-white transition-colors rounded-full hover:bg-[#2a3942]"
+                    className="p-2 text-[#8696a0] hover:text-white transition-colors rounded-full hover:bg-[#2a3942] hover:rounded-full"
                   >
-                    <ImageIcon className="w-4 h-4 md:w-5 md:h-5" />
+                  <ImageIcon className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                    <button
                     type="button"
                     onClick={() => setShowRecorder(true)}
-                    className="p-2 text-[#8696a0] hover:text-white transition-colors rounded-full hover:bg-[#2a3942]"
+                    className="p-2 text-[#8696a0] hover:text-white transition-colors hover:rounded-full hover:bg-[#2a3942]"
                   >
                     <Mic className="w-5 h-5" />
                   </button>
@@ -712,28 +712,14 @@ const handleSendMessage = async (e) => {
                   />
 
                 {/* Text input */}
-                {/* <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Type a message"
-                  className="flex-1 bg-[#2a3942] text-white px-4 py-3 rounded-full outline-none placeholder:text-[#8696a0] text-sm"
-                />
-
-                {/* Right side - Send or Mic button *
-                  <button
-                    type="submit"
-                    className="p-2 text-[#00a884] hover:text-[#06cf9c] transition-colors rounded-full hover:bg-[#2a3942]"
-                  >
-                    <Send className="w-5 h-5" />
-                  </button> */}
+          
                    <input
                     type="text"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
                     placeholder="Type a message..."
-                    className="flex-1 bg-[#2a3942] text-white px-4 py-3 rounded-full outline-none placeholder:text-[#8696a0] text-sm"
+                    className="flex-1 bg-white text-blue-700 px-4 py-3 border rounded-full  placeholder:text-[#8696a0] text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
                   />
 
                   {/* Submit button */}
@@ -758,3 +744,5 @@ const handleSendMessage = async (e) => {
 }
 
 export default ChatInterface
+
+
