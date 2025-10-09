@@ -22,7 +22,14 @@ class Message extends Model
         'client_id',
         'read_at',
         'audio',
-        'video'
+        'video',
+        'reply_to_id', 
+        'is_edited', 
+        'edited_at', 
+        'is_deleted', 
+        'deleted_at', 
+        'deleted_by', 
+        'deleted_scope'
     ];
 
     // protected static function newFactory(): MessageFactory
