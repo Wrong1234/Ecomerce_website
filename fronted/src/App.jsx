@@ -12,6 +12,7 @@ import ChatInterface from "./Components/Message";
 import UserManagement from "./Components/UserManagement";
 import Checking from "./Components/Checking";
 import VoiceMessage from "./Components/VoiceMessage";
+import Home from "./Components/Home";
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
             <Route path="/users" element={<UserManagement />} />
             <Route path="/checking" element={<Checking />} />
             <Route path="/voice-message" element={ <VoiceMessage />} />
+            <Route path="/home" element={ <Home />} />
          </Routes>
       </div>
     
