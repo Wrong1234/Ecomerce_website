@@ -210,7 +210,7 @@ export default function VoiceMessage({ receiverId, onClose }) {
       ) : previewUrl ? (
         <button
           onClick={togglePlayPause}
-          className="p-2 text-white hover:text-[#00a884] transition-colors rounded-full hover:bg-[#2a3942]"
+          className="p-2 text-red-500 hover:text-[#00a884] transition-colors rounded-full hover:bg-[#2a3942]"
         >
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
         </button>
@@ -240,7 +240,7 @@ export default function VoiceMessage({ receiverId, onClose }) {
       {recording ? (
         <button
           onClick={stopRecording}
-          className="p-2 text-white hover:text-red-400 transition-colors rounded-full hover:bg-[#2a3942]"
+          className="p-2 text-green-500 hover:text-red-400 transition-colors rounded-full hover:bg-[#2a3942]"
         >
           <Square className="w-5 h-5 fill-current" />
         </button>

@@ -12,6 +12,8 @@ import ChatInterface from "./Components/Message";
 import UserManagement from "./Components/UserManagement";
 import Checking from "./Components/Checking";
 import VoiceMessage from "./Components/VoiceMessage";
+import PixelTrackingDemo from "./Components/PixelTrackingDemo";
+import "tailwindcss";
 
 
 function App() {
@@ -34,6 +36,7 @@ function App() {
             <Route path="/users" element={<UserManagement />} />
             <Route path="/checking" element={<Checking />} />
             <Route path="/voice-message" element={ <VoiceMessage />} />
+            <Route path="/pixel-tracking-demo" element={ <PixelTrackingDemo />} />
          </Routes>
       </div>
     

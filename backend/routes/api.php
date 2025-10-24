@@ -8,6 +8,7 @@ use App\Models\Order;
 use Modules\SSLEcommerz\Http\Controllers\SslCommerzPaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Broadcasting\BroadcastController; 
+use App\Http\Controllers\Api\PixelTrackingController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -44,3 +45,9 @@ Route::prefix('/orders')->group(function(){
 
 Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])
     ->middleware('auth:sanctum');
+
+
+
+// Public Tracking Endpoint (Used by the client-side pixel)
+// Matches your React endpoint: /api/v1/pixels/track
+Route::post('/v1/pixels/track', [PixelTrackingController::class, 'track']);

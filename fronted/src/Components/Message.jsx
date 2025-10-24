@@ -744,5 +744,3 @@ const handleSendMessage = async (e) => {
 }
 
 export default ChatInterface
-
-
